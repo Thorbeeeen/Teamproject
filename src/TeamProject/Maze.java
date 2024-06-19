@@ -1,3 +1,9 @@
+/* Idee:
+* Klasse Zelle oder Box zu programmieren die eine Box des Labyrinths darstellt.
+* Und dann this.graph durch Box[] statt int[][][] darszustellen.
+* Vorteile sind wahrscheinlich Übersichtlichkeit und Erweiterbarkeit mit zum Beispiel Hinblick auf Tunnel, Schlüssel, Türen oder Items.
+*/
+
 package TeamProject;
 
 import java.util.Arrays;
@@ -28,6 +34,9 @@ public class Maze {
         return this.graph;
     }
 
+    /**
+    * Hilfsmethode die ein zufälliges Labyrinth erzeugt der lösbar ist.
+    */
     private static int[][][] createMaze(int columns, int rows) {
         int[][][] graph = new int[columns][rows][4];
         createPath(graph, 0, 0, new int[][] {{columns - 1, rows - 1}});
@@ -41,6 +50,11 @@ public class Maze {
 
     }
 
+    /**
+    * Hilsmethode die einen zufälligen Weg von der Box in der (xpos + 1)-ten Spalten und (ypos + 1)-ten Reihe zu den in targets gespeicherten Boxen in maze erzeugt.
+    * Das i-te Element aus targets speichert hier das i-te target und wird als ein Array der Länge 2 dargestellt, wobei das erste Element die Spaltennummer minus 1 der Box ist 
+    * und das zweite Element die Zeilennummer minus 1 der Box ist.
+    */
     private static boolean createPath(int[][][] maze, int xpos, int ypos, int[][] targets) {
         if (maze.length <= xpos || maze[0].length <= ypos) return false;
         if (xpos < 0 || ypos < 0) return false;
@@ -86,6 +100,9 @@ public class Maze {
         return false;
     }
 
+    /**
+    * Hilfsmethode für createMaze, die ein int-Array mischt, um im erstellten Labyrinth aus createMaze für Zufall zusorgen.
+    */
     private static int[] shuffle(int[] array) {
         for (int i = 0; i < array.length; i++) {
             int j = (int) (array.length * Math.random());
@@ -96,6 +113,10 @@ public class Maze {
         return array;
     }
 
+    /**
+    * Hilfmethode für createMaze, die alle Boxen berechnet die NICHT von der oberen linken Box erreicht werden können.
+    * Die Ausgabe wird wie der Parameter targets in createPath repräsentiert. 
+    */
     private static int[][] computeUnreachableIndexes(int[][][] graph) {
         int length = 0;
         for (int i = 0; i < graph.length; i++) {
@@ -115,6 +136,10 @@ public class Maze {
         return result;
     }
 
+    /**
+    * Hilfmethode für createMaze, die alle Boxen berechnet die von der oberen linken Box erreicht werden können.
+    * Die Ausgabe wird wie der Parameter targets in createPath repräsentiert. 
+    */
     private static int[][] computeReachableIndexes(int[][][] graph) {
         int length = 0;
         for (int i = 0; i < graph.length; i++) {
