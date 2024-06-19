@@ -15,7 +15,13 @@ public class Maze {
         this.rowNum = rowNum;
         this.player = new Player();
 
-        this.graph = createMaze(columnNum, rowNum);
+        this.graph = createMaze(columnNum, rowNum); 
+        /* 
+        * this.graph speichert für jede Box die anliegenden Wände,
+        * indem für 0 <= i < this.columnNum, 0 <= j < this.rowNum und 0 <= k < 4,  
+        * grapgh[i][j][k] gleich 1 ist falls die Box in der (i + 1)-ten Spalten und (j + 1)-ten Zeile in k-ter Richutng eine Wand befindet.
+        * Mit k-ter Richtung im Fall k = 0 ist rechts bzw, k = 1 ist unten, k = 2 ist links, k = 3 oben. 
+        */
     }
 
     public int[][][] getGraph() {
