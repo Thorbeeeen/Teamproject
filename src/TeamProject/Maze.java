@@ -1,12 +1,4 @@
-/* Idee:
-* Klasse Zelle oder Box zu programmieren die eine Box des Labyrinths darstellt.
-* Und dann this.graph durch Box[] statt int[][][] darszustellen.
-* Vorteile sind wahrscheinlich Übersichtlichkeit und Erweiterbarkeit mit zum Beispiel Hinblick auf Tunnel, Schlüssel, Türen oder Items.
-*/
-
 package TeamProject;
-
-import java.util.Arrays;
 
 public class Maze {
 
@@ -14,96 +6,109 @@ public class Maze {
     private final int rowNum;
     private final Player player;
 
-    private final int[][][] graph;
+    private final Box[] graph;
 
     public Maze(int columnNum, int rowNum) {
         this.columnNum = columnNum;
         this.rowNum = rowNum;
         this.player = new Player();
 
-        this.graph = createMaze(columnNum, rowNum); 
-        /* 
-        * this.graph speichert für jede Box die anliegenden Wände,
-        * indem für 0 <= i < this.columnNum, 0 <= j < this.rowNum und 0 <= k < 4,  
-        * grapgh[i][j][k] gleich 1 ist falls die Box in der (i + 1)-ten Spalten und (j + 1)-ten Zeile in k-ter Richutng eine Wand befindet.
-        * Mit k-ter Richtung im Fall k = 0 ist rechts bzw, k = 1 ist unten, k = 2 ist links, k = 3 oben. 
-        */
+        this.graph = createMaze(columnNum, rowNum);
     }
 
-    public int[][][] getGraph() {
+    public Box[] getGraph() {
         return this.graph;
     }
 
-    /**
-    * Hilfsmethode die ein zufälliges Labyrinth erzeugt der lösbar ist.
-    */
-    private static int[][][] createMaze(int columns, int rows) {
-        int[][][] graph = new int[columns][rows][4];
-        createPath(graph, 0, 0, new int[][] {{columns - 1, rows - 1}});
-        int[][] unreachableIndexes = computeUnreachableIndexes(graph);
-        while (unreachableIndexes.length != 0) {
-            int[] startingPosition = unreachableIndexes[(int) (unreachableIndexes.length * Math.random())];
-            createPath(graph, startingPosition[0], startingPosition[1], computeReachableIndexes(graph));
-            unreachableIndexes = computeUnreachableIndexes(graph);
-        }
-        return graph;
+    public int getColumnNum() {
+        return this.columnNum;
+    }
 
+    public int getRowNum() {
+        return rowNum;
+    }
+
+    public Box getBoxAtPosition(int xpos, int ypos) {
+        return getBoxAtPosition(this.graph, xpos, ypos);
+    }
+
+    private Box getBoxAtPosition(Box[] graph, int xpos, int ypos) {
+        for (Box box : graph) {
+            if (box.getXPos() == xpos && box.getYPos() == ypos) return box;
+        }
+        return null;
     }
 
     /**
-    * Hilsmethode die einen zufälligen Weg von der Box in der (xpos + 1)-ten Spalten und (ypos + 1)-ten Reihe zu den in targets gespeicherten Boxen in maze erzeugt.
+    * Hilfsmethode, die ein zufälliges Labyrinth erzeugt der lösbar ist.
+    */
+    private Box[] createMaze(int columnNum, int rowNum) {
+        Box[] graph = new Box[columnNum * rowNum];
+        for (int i = 0; i < columnNum * rowNum; i++) {
+            graph[i] = new Box(i % columnNum, i / rowNum);
+        }
+        createPath(graph, graph[0], new Box[] {graph[columnNum * rowNum - 1]});
+        Box[] unreachableBoxes = computeUnreachableBoxes(graph);
+        while (unreachableBoxes.length != 0) {
+            Box startingBox = unreachableBoxes[(int) (unreachableBoxes.length * Math.random())];
+            createPath(graph, startingBox, computeReachableBoxes(graph));
+            unreachableBoxes = computeUnreachableBoxes(graph);
+        }
+        return graph;
+    }
+
+    /**
+    * Hilfsmethode die einen zufälligen Weg von der Box in der (xpos + 1)-ten Spalten und (ypos + 1)-ten Reihe zu den in targets gespeicherten Boxen in maze erzeugt.
     * Das i-te Element aus targets speichert hier das i-te target und wird als ein Array der Länge 2 dargestellt, wobei das erste Element die Spaltennummer minus 1 der Box ist 
     * und das zweite Element die Zeilennummer minus 1 der Box ist.
     */
-    private static boolean createPath(int[][][] maze, int xpos, int ypos, int[][] targets) {
-        if (maze.length <= xpos || maze[0].length <= ypos) return false;
-        if (xpos < 0 || ypos < 0) return false;
-        for (int i = 0; i < targets.length; i++) {
-            if (targets[i][0] == xpos && targets[i][1] == ypos) return true;
+    private boolean createPath(Box[] graph, Box start, Box[] targets) {
+        for (Box target : targets) {
+            if (target == start) return true;
         }
-        if (Arrays.stream(maze[xpos][ypos]).sum() != 0) return false;
+        if (start.countNeighbors() != 0) return false;
 
         for (int direction : shuffle(new int[] {0, 1, 2, 3})) {
-            boolean foundPath = false;
+            Box next = null;
 
             switch (direction) {
                 case 0:
-                    maze[xpos][ypos][direction] = 1;
-                    foundPath = createPath(maze, xpos + 1, ypos, targets);
-                    if (foundPath) maze[xpos + 1][ypos][(direction + 2) % 4] = 1;
+                    if (start.getXPos() == this.columnNum) continue;
+                    next = getBoxAtPosition(graph, start.getXPos() + 1, start.getYPos());
                     break;
 
                 case 1:
-                    maze[xpos][ypos][direction] = 1;
-                    foundPath = createPath(maze, xpos, ypos + 1, targets);
-                    if (foundPath) maze[xpos][ypos + 1][(direction + 2) % 4] = 1;
+                    if (start.getYPos() == this.rowNum) continue;
+                    next = getBoxAtPosition(graph, start.getXPos(), start.getYPos() + 1);
                     break;
 
                 case 2:
-                    if (ypos == maze[0].length - 1 || ypos == 0) continue;
-                    maze[xpos][ypos][direction] = 1;
-                    foundPath = createPath(maze, xpos - 1, ypos, targets);
-                    if (foundPath) maze[xpos - 1][ypos][(direction + 2) % 4] = 1;
+                    if(start.getXPos() == 0) continue;
+                    if (start.getYPos() == this.rowNum - 1 || start.getYPos() == 0) continue;
+                    next = getBoxAtPosition(graph, start.getXPos() - 1, start.getYPos());
                     break;
 
                 case 3:
-                    if (xpos == maze.length - 1 || xpos == 0) continue;
-                    maze[xpos][ypos][direction] = 1;
-                    foundPath = createPath(maze, xpos, ypos - 1, targets);
-                    if (foundPath) maze[xpos][ypos - 1][(direction + 2) % 4] = 1;
+                    if(start.getYPos() == 0) continue;
+                    if (start.getXPos() == this.columnNum - 1 || start.getXPos() == 0) continue;
+                    next = getBoxAtPosition(graph, start.getXPos(), start.getYPos() - 1);
                     break;
             }
 
+            if (next == null) continue;
+            start.addConnection(next);
+            boolean foundPath = createPath(graph, next, targets);
+            if (foundPath) next.addConnection(start);
             if (foundPath) return true;
-            else maze[xpos][ypos][direction] = 0;
+            else start.delConnection(next);
         }
         return false;
     }
 
     /**
-    * Hilfsmethode für createMaze, die ein int-Array mischt, um im erstellten Labyrinth aus createMaze für Zufall zusorgen.
+    * Hilfsmethode für createMaze, die ein Box-Array mischt, um im erstellten Labyrinth aus createMaze für Zufall zu sorgen.
     */
-    private static int[] shuffle(int[] array) {
+    private int[] shuffle(int[] array) {
         for (int i = 0; i < array.length; i++) {
             int j = (int) (array.length * Math.random());
             int temp = array[j];
@@ -114,22 +119,34 @@ public class Maze {
     }
 
     /**
-    * Hilfmethode für createMaze, die alle Boxen berechnet die NICHT von der oberen linken Box erreicht werden können.
+    * Hilfsmethode für createMaze, die alle Boxen berechnet die NICHT von der oberen linken Box erreicht werden können.
     * Die Ausgabe wird wie der Parameter targets in createPath repräsentiert. 
     */
-    private static int[][] computeUnreachableIndexes(int[][][] graph) {
+    private Box[] computeUnreachableBoxes(Box[] graph) {
         int length = 0;
-        for (int i = 0; i < graph.length; i++) {
-            for (int j = 0; j < graph[0].length; j++) {
-                if (Arrays.stream(graph[i][j]).sum() == 0) length++;
+        for (Box target : graph) {
+            boolean bool = true;
+            for (Box box : graph) {
+                if (box.connects(target)) {
+                    bool = false;
+                    break;
+                }
             }
+            if (bool) length++;
         }
-        int[][] result = new int[length][2];
+        Box[] result = new Box[length];
         int pos = 0;
-        for (int i = 0; i < graph.length; i++) {
-            for (int j = 0; j < graph[0].length; j++) {
-                if (Arrays.stream(graph[i][j]).sum() != 0) continue;
-                result[pos] = new int[] {i, j};
+
+        for (Box target : graph) {
+            boolean bool = true;
+            for (Box box : graph) {
+                if (box.connects(target)) {
+                    bool = false;
+                    break;
+                }
+            }
+            if (bool) {
+                result[pos] = target;
                 pos++;
             }
         }
@@ -137,22 +154,34 @@ public class Maze {
     }
 
     /**
-    * Hilfmethode für createMaze, die alle Boxen berechnet die von der oberen linken Box erreicht werden können.
+    * Hilfsmethode für createMaze, die alle Boxen berechnet die von der oberen linken Box erreicht werden können.
     * Die Ausgabe wird wie der Parameter targets in createPath repräsentiert. 
     */
-    private static int[][] computeReachableIndexes(int[][][] graph) {
+    private Box[] computeReachableBoxes(Box[] graph) {
         int length = 0;
-        for (int i = 0; i < graph.length; i++) {
-            for (int j = 0; j < graph[0].length; j++) {
-                if (Arrays.stream(graph[i][j]).sum() != 0) length++;
+        for (Box target : graph) {
+            boolean bool = false;
+            for (Box box : graph) {
+                if (box.connects(target)) {
+                    bool = true;
+                    break;
+                }
             }
+            if (bool) length++;
         }
-        int[][] result = new int[length][2];
+        Box[] result = new Box[length];
         int pos = 0;
-        for (int i = 0; i < graph.length; i++) {
-            for (int j = 0; j < graph[0].length; j++) {
-                if (Arrays.stream(graph[i][j]).sum() == 0) continue;
-                result[pos] = new int[] {i, j};
+
+        for (Box target : graph) {
+            boolean bool = false;
+            for (Box box : graph) {
+                if (box.connects(target)) {
+                    bool = true;
+                    break;
+                }
+            }
+            if (bool) {
+                result[pos] = target;
                 pos++;
             }
         }

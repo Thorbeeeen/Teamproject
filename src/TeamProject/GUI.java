@@ -2,79 +2,84 @@ package TeamProject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
 public class GUI {
 
-    private static int DEFAULT_PADDING = 20;
-    private static int DEFAULT_COLUMN_WIDTH = 30;
-    private static int DEFAULT_ROW_HEIGHT = 30;
+    private static final int DEFAULT_PADDING = 20;
+    private static final int DEFAULT_COLUMN_WIDTH = 30;
+    private static final int DEFAULT_ROW_HEIGHT = 30;
 
     public static void runMaze(Maze maze) {
 
-        int[][][] graph = maze.getGraph();
 
+        // Erstelle neues Fenster:
         JFrame mainFrame = new JFrame();
         mainFrame.setResizable(true);
         mainFrame.setVisible(true);
         mainFrame.setTitle("Info 2 - Particle simulation");
-        mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\thorb\\OneDrive - UT Cloud\\Module\\SS24\\Info2 SS24\\Project 1\\src\\particleSimulation\\AltIcon.png"));
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+
+
+        // Erstelle zusätzliche Ebene, um die Boxen zu zeichnen:
         JPanel canvas = new JPanel() {
             @Override
             protected void paintComponent(Graphics graphics) {
-                super.paintComponent(graphics);
-                for (int i = 0; i < graph.length; i++) {
-                    for (int j = 0; j < graph[0].length; j++) {
-                        for (int k = 0; k < graph[0][0].length; k++) {
-                            if (graph[i][j][k] == 1) continue;
-                            switch (k) {
-                                case 0:
-                                    graphics.drawLine(
-                                            (i + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            j * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
-                                            (i + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            (j + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
-                                    break;
-                                case 1:
-                                    graphics.drawLine(
-                                            i * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            (j + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
-                                            (i + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            (j + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
-                                    break;
-                                case 2:
-                                    graphics.drawLine(
-                                            i * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            j * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
-                                            i * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            (j + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
-                                    break;
-                                case 3:
-                                    graphics.drawLine(
-                                            i * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            j * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
-                                            (i + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
-                                            j * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
-                                    break;
-                            }
-                        }
-                    }
+                // zeichne die Wände der Boxen:
+                for (Box box : maze.getGraph()) {
+                    int xpos = box.getXPos();
+                    int ypos = box.getYPos();
+
+
+                    // zeichne rechte Wand der Box, falls nötig:
+                    if (!box.connects(maze.getBoxAtPosition(xpos + 1, ypos)))
+                        graphics.drawLine(
+                                (xpos + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                ypos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
+                                (xpos + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                (ypos + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
+
+
+                    // zeichne untere Wand der Box, falls nötig
+                    if (!box.connects(maze.getBoxAtPosition(xpos, ypos + 1)))
+                        graphics.drawLine(
+                                xpos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                (ypos + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
+                                (xpos + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                (ypos + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
+
+
+                    // zeichne linke Wand der Box, falls nötig
+                    if (!box.connects(maze.getBoxAtPosition(xpos - 1, ypos)))
+                        graphics.drawLine(
+                                xpos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                ypos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
+                                xpos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                (ypos + 1) * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
+
+
+                    // zeichne obere Wand der Box, falls nötig:
+                    if (!box.connects(maze.getBoxAtPosition(xpos, ypos - 1)))
+                        graphics.drawLine(
+                                xpos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                ypos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
+                                (xpos + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
+                                ypos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
                 }
             }
         };
 
-        canvas.setPreferredSize(new Dimension(
-                graph.length * DEFAULT_COLUMN_WIDTH + 2 * DEFAULT_PADDING,
-                graph[0].length * DEFAULT_ROW_HEIGHT + 2 * DEFAULT_PADDING));
+
+        // Lege präferierte Größe der Zeichenebene fest:
+        canvas.setPreferredSize(new Dimension(maze.getColumnNum() * DEFAULT_COLUMN_WIDTH + 2 * DEFAULT_PADDING, maze.getRowNum() * DEFAULT_ROW_HEIGHT + 2 * DEFAULT_PADDING));
+        // Füge die Zeichenebene in das Fenster ein:
         mainFrame.getContentPane().add(canvas);
+        // Anpassen der Größe des Fensters:
         mainFrame.pack();
     }
 
     public static void main(String[] args) {
-        Maze maze = new Maze(20, 20);
-        int[][][] graph = maze.getGraph();
+        Maze maze = new Maze(10, 10);
         runMaze(maze);
     }
 }
