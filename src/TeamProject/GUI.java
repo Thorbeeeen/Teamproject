@@ -21,7 +21,6 @@ public class GUI {
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 
-
         // Erstelle zusätzliche Ebene, um die Boxen zu zeichnen:
         JPanel canvas = new JPanel() {
             private final Box[] graph = maze.getGraph();;
@@ -83,139 +82,60 @@ public class GUI {
         };
 
 
-
-        mainFrame.addKeyListener(new KeyListener() {
-            private final Box[] graph = maze.getGraph();;
-            private final Player player = maze.getPlayer();
-
-            private boolean activeW = false;
-            private boolean activeA = false;
-            private boolean activeS = false;
-            private boolean activeD = false;
-
-            public final Timer t = new Timer(
-                20,
-                (e) -> {
-                    if (this.activeW) player.setYPos(player.getYPos() - 0.05);
-                    if (this.activeA) player.setXPos(player.getXPos() - 0.05);
-                    if (this.activeS) player.setYPos(player.getYPos() + 0.05);
-                    if (this.activeD) player.setXPos(player.getXPos() + 0.05);
-                    mainFrame.repaint();
-                }
-            );
-
-
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyChar() == 'w') this.activeW = true;
-                if (e.getKeyChar() == 'a') this.activeA = true;
-                if (e.getKeyChar() == 's') this.activeS = true;
-                if (e.getKeyChar() == 'd') this.activeD = true;
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == 'p') t.start();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.getKeyChar() == 'w') this.activeW = false;
-                if (e.getKeyChar() == 'a') this.activeA = false;
-                if (e.getKeyChar() == 's') this.activeS = false;
-                if (e.getKeyChar() == 'd') this.activeD = false;
-            }
-        });
-
-//        mainFrame.addKeyListener(new KeyListener() {
-//            private final Box[] graph = maze.getGraph();;
-//            private final Player player = maze.getPlayer();
-//
-//            @Override
-//            public void keyPressed(KeyEvent e) {
-//                if (e.getKeyChar() == 'w') player.setYPos(player.getYPos() - 0.05);
-//                mainFrame.repaint();
-//            }
-//
-//            @Override
-//            public void keyTyped(KeyEvent e) {
-//            }
-//
-//            @Override
-//            public void keyReleased(KeyEvent e) {
-//            }
-//        });
-//
-//
-//
-//        mainFrame.addKeyListener(new KeyListener() {
-//            private final Box[] graph = maze.getGraph();;
-//            private final Player player = maze.getPlayer();
-//
-//            @Override
-//            public void keyPressed(KeyEvent e) {
-//                if (e.getKeyChar() == 'a') player.setXPos(player.getXPos() - 0.05);
-//                mainFrame.repaint();
-//            }
-//
-//            @Override
-//            public void keyTyped(KeyEvent e) {
-//            }
-//
-//            @Override
-//            public void keyReleased(KeyEvent e) {
-//            }
-//        });
-//
-//
-//
-//        mainFrame.addKeyListener(new KeyListener() {
-//            private final Box[] graph = maze.getGraph();;
-//            private final Player player = maze.getPlayer();
-//
-//            @Override
-//            public void keyPressed(KeyEvent e) {
-//                if (e.getKeyChar() == 's') player.setYPos(player.getYPos() + 0.05);
-//                mainFrame.repaint();
-//            }
-//
-//            @Override
-//            public void keyTyped(KeyEvent e) {
-//            }
-//
-//            @Override
-//            public void keyReleased(KeyEvent e) {
-//            }
-//        });
-//
-//
-//
-//        mainFrame.addKeyListener(new KeyListener() {
-//            private final Box[] graph = maze.getGraph();;
-//            private final Player player = maze.getPlayer();
-//
-//            @Override
-//            public void keyPressed(KeyEvent e) {
-//                if (e.getKeyChar() == 'd') player.setXPos(player.getXPos() + 0.05);
-//                mainFrame.repaint();
-//            }
-//
-//            @Override
-//            public void keyTyped(KeyEvent e) {
-//            }
-//
-//            @Override
-//            public void keyReleased(KeyEvent e) {
-//            }
-//        });
-
-
-
         // Lege präferierte Größe der Zeichenebene fest:
         canvas.setPreferredSize(new Dimension(maze.getColumnNum() * DEFAULT_COLUMN_WIDTH + 2 * DEFAULT_PADDING, maze.getRowNum() * DEFAULT_ROW_HEIGHT + 2 * DEFAULT_PADDING));
         // Füge die Zeichenebene in das Fenster ein:
         mainFrame.getContentPane().add(canvas);
+
+
+        // Erstelle KeyListener für die Tasten WASD
+        KeyListener WASDListener = new KeyListener() {
+            private final Player player = maze.getPlayer();
+
+            private boolean WPressed = false;
+            private boolean APressed = false;
+            private boolean SPressed = false;
+            private boolean DPressed = false;
+
+            private final Timer t = new Timer(
+                20,
+                (e) -> {
+                    if (this.WPressed) player.setYPos(player.getYPos() - 0.05);
+                    if (this.APressed) player.setXPos(player.getXPos() - 0.05);
+                    if (this.SPressed) player.setYPos(player.getYPos() + 0.05);
+                    if (this.DPressed) player.setXPos(player.getXPos() + 0.05);
+                    mainFrame.repaint();
+                }
+            );
+
+            {
+                t.start();
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == 'w') this.WPressed = true;
+                if (e.getKeyChar() == 'a') this.APressed = true;
+                if (e.getKeyChar() == 's') this.SPressed = true;
+                if (e.getKeyChar() == 'd') this.DPressed = true;
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyChar() == 'w') this.WPressed = false;
+                if (e.getKeyChar() == 'a') this.APressed = false;
+                if (e.getKeyChar() == 's') this.SPressed = false;
+                if (e.getKeyChar() == 'd') this.DPressed = false;
+            }
+        };
+
+
+        // Füge den KeyListener dem Fenster hinzu:
+        mainFrame.addKeyListener(WASDListener);
         // Anpassen der Größe des Fensters:
         mainFrame.pack();
     }
