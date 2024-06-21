@@ -2,6 +2,9 @@ package TeamProject;
 
 public class Maze {
 
+    private final int playerWidth = 8;
+    private final int playerHeight = 8;
+
     private final int columnNum;
     private final int rowNum;
     private final Player player;
@@ -11,9 +14,13 @@ public class Maze {
     public Maze(int columnNum, int rowNum) {
         this.columnNum = columnNum;
         this.rowNum = rowNum;
-        this.player = new Player();
+        this.player = new Player(this.playerWidth, this.playerHeight);
 
         this.graph = createMaze(columnNum, rowNum);
+    }
+
+    public Player getPlayer() {
+        return this.player;
     }
 
     public Box[] getGraph() {
