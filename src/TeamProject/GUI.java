@@ -3,6 +3,7 @@ package TeamProject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D; // für die "Taschenlampenfunktion"
 
 public class GUI {
 
@@ -10,9 +11,10 @@ public class GUI {
     private static final int DEFAULT_COLUMN_WIDTH = 30;
     private static final int DEFAULT_ROW_HEIGHT = 30;
 
+    private static double VISIBLE_RADIUS = 1.5; // sichtbarer Radius der Taschenlampe
+    private static boolean IS_FLASHLIGHT_ON = false; // Boolean der speichert ob Taschenlampenmodus ein oder aus ist
+
     public static void runMaze(Maze maze) {
-
-
         // Erstelle neues Fenster:
         JFrame mainFrame = new JFrame();
         mainFrame.setResizable(true);
@@ -28,6 +30,27 @@ public class GUI {
 
             @Override
             protected void paintComponent(Graphics graphics) {
+
+                if(IS_FLASHLIGHT_ON) {
+                    // Zeichne Taschenlampe falls getLightBulb = TRUE
+                    Graphics2D g2d = (Graphics2D) graphics;
+                    g2d.clearRect(0, 0, getWidth(), getHeight());
+
+                    int playerXPos = (int) (player.getXPos() * DEFAULT_COLUMN_WIDTH) + DEFAULT_PADDING;
+                    int playerYPos = (int) (player.getYPos() * DEFAULT_ROW_HEIGHT) + DEFAULT_PADDING;
+                    double visibleRadius = VISIBLE_RADIUS * DEFAULT_COLUMN_WIDTH;
+
+                    // Sichtbarer Kreis um Player
+                    Shape visibleArea = new Ellipse2D.Double(
+                            playerXPos - visibleRadius, playerYPos - visibleRadius,
+                            2 * visibleRadius, 2 * visibleRadius);
+
+                    // Set Clip zu visibleArea
+                    g2d.setClip(visibleArea);
+                }
+
+
+
                 // zeichne die Wände der Boxen:
                 for (Box box : this.graph) {
                     int xpos = box.getXPos();
@@ -74,10 +97,12 @@ public class GUI {
                 // zeichne Player:
                 graphics.setColor(player.getColor());
                 graphics.fillOval(
-                        (int) (player.getXPos()* DEFAULT_COLUMN_WIDTH - 0.5 * player.getWidth()) + DEFAULT_PADDING,
+                        (int) (player.getXPos() * DEFAULT_COLUMN_WIDTH - 0.5 * player.getWidth()) + DEFAULT_PADDING,
                         (int) (player.getYPos() * DEFAULT_ROW_HEIGHT - 0.5 * player.getWidth()) + DEFAULT_PADDING,
                         player.getWidth(),
                         player.getHeight());
+
+
             }
         };
 
@@ -139,8 +164,19 @@ public class GUI {
         // Anpassen der Größe des Fensters:
         mainFrame.pack();
     }
+    // Weitere Methoden
 
+    // Taschenlampenfunktion Getter/Setter
+    private boolean getFlashlightOn(){return IS_FLASHLIGHT_ON;}
+    private static void setFlashLightOn(double radius){
+        VISIBLE_RADIUS = radius;
+        IS_FLASHLIGHT_ON = true;
+    }
+    private static void setFlashLightOff(){IS_FLASHLIGHT_ON = false;}
+
+    // Main Methode:
     public static void main(String[] args) {
+        GUI.setFlashLightOn(1.0);
         Maze maze = new Maze(10, 10);
         runMaze(maze);
     }
