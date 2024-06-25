@@ -1,9 +1,10 @@
 bis 30.06 (Sonntag) ---
 Wichtig: 
 - Spieler kann nicht durch Wände hindurch
+- Labyrinth ist immer lösbar (?) 
 
 Zusätzlich: 
-- Ziel implementieren 
+- Labyrinth Solver
 - Gegenstände 
 
 bis 07.07 (Sonntag) ---
