@@ -1,6 +1,8 @@
 package TeamProject;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.plaf.ButtonUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D; // für die "Taschenlampenfunktion"
@@ -14,13 +16,16 @@ public class GUI {
     private static double VISIBLE_RADIUS = 1.5; // sichtbarer Radius der Taschenlampe
     private static boolean IS_FLASHLIGHT_ON = false; // Boolean der speichert ob Taschenlampenmodus ein oder aus ist
 
+
+    // Hauptmethode:
     public static void runMaze(Maze maze) {
         // Erstelle neues Fenster:
         JFrame mainFrame = new JFrame();
         mainFrame.setResizable(true);
         mainFrame.setVisible(true);
-        mainFrame.setTitle("Info 2 - Particle simulation");
+        mainFrame.setTitle("Info 2 - Teamprojekt");
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        mainFrame.getContentPane().setLayout(new BorderLayout());
 
 
         // Erstelle zusätzliche Ebene, um die Boxen zu zeichnen:
@@ -31,8 +36,9 @@ public class GUI {
             @Override
             protected void paintComponent(Graphics graphics) {
 
+
+                // Zeichne Taschenlampe falls getLightBulb = TRUE
                 if(IS_FLASHLIGHT_ON) {
-                    // Zeichne Taschenlampe falls getLightBulb = TRUE
                     Graphics2D g2d = (Graphics2D) graphics;
                     g2d.clearRect(0, 0, getWidth(), getHeight());
 
@@ -40,10 +46,15 @@ public class GUI {
                     int playerYPos = (int) (player.getYPos() * DEFAULT_ROW_HEIGHT) + DEFAULT_PADDING;
                     double visibleRadius = VISIBLE_RADIUS * DEFAULT_COLUMN_WIDTH;
 
+
+
                     // Sichtbarer Kreis um Player
                     Shape visibleArea = new Ellipse2D.Double(
-                            playerXPos - visibleRadius, playerYPos - visibleRadius,
-                            2 * visibleRadius, 2 * visibleRadius);
+                            playerXPos - visibleRadius,
+                            playerYPos - visibleRadius,
+                            2 * visibleRadius,
+                            2 * visibleRadius);
+
 
                     // Set Clip zu visibleArea
                     g2d.setClip(visibleArea);
@@ -161,10 +172,49 @@ public class GUI {
 
         // Füge den KeyListener dem Fenster hinzu:
         mainFrame.addKeyListener(WASDListener);
-        // Anpassen der Größe des Fensters:
+
+
+        // Erstelle Panel um die Boxen darin zu platzieren
+        JPanel ButtonPanel = new JPanel();
+        ButtonPanel.setLayout(new FlowLayout());
+        ButtonPanel.setBackground(new Color(255, 255, 255));
+        mainFrame.getContentPane().add(ButtonPanel, BorderLayout.SOUTH);
+
+
+        // Erstelle, Platziere Knopf zum Neuerstellung des Labyrinths und füge Funktionalität hinzu:
+        JButton ResetButton = new JButton();
+        ResetButton.setVisible(true);
+        ResetButton.setPreferredSize(new Dimension(200, 50));
+        ResetButton.setBackground(new Color(255, 255, 255));
+        ResetButton.setText("Reset Maze");
+        ButtonPanel.add(ResetButton);
+
+
+        // Erstelle, Platziere Knopf zum Einstellen der Schwierigkeit des Labyrinths und füge Funktionalität hinzu:
+        JButton DifficultyButton = new JButton();
+        DifficultyButton.setVisible(true);
+        DifficultyButton.setPreferredSize(new Dimension(200, 50));
+        DifficultyButton.setBackground(new Color(255, 255, 255));
+        DifficultyButton.setText("Difficulty:");
+        ButtonPanel.add(DifficultyButton);
+
+
+        // Erstelle, Platziere Knopf zum Einstellen der Schwierigkeit des Labyrinths und füge Funktionalität hinzu:
+        JButton Button3 = new JButton();
+        Button3.setVisible(true);
+        Button3.setPreferredSize(new Dimension(200, 50));
+        Button3.setBackground(new Color(255, 255, 255));
+        Button3.setText("TBD");
+        ButtonPanel.add(Button3);
+
+
+        // Anpassen der Größe und Layout des Fensters:
         mainFrame.pack();
     }
-    // Weitere Methoden
+
+
+
+    // Weitere Hilfsmethoden:
 
     // Taschenlampenfunktion Getter/Setter
     private boolean getFlashlightOn(){return IS_FLASHLIGHT_ON;}
@@ -174,10 +224,12 @@ public class GUI {
     }
     private static void setFlashLightOff(){IS_FLASHLIGHT_ON = false;}
 
+
+
     // Main Methode:
     public static void main(String[] args) {
         GUI.setFlashLightOn(1.0);
-        Maze maze = new Maze(10, 10);
+        Maze maze = new Maze(20, 20);
         runMaze(maze);
     }
 }
