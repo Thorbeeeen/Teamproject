@@ -1,8 +1,6 @@
 package TeamProject;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.plaf.ButtonUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D; // für die "Taschenlampenfunktion"
@@ -36,17 +34,13 @@ public class GUI {
 
         // Erstelle zusätzliche Ebene, um die Boxen zu zeichnen:
         JPanel canvas = new JPanel() {
-
-            private final Box[] graph = maze.getGraph();;
-            private final Player player = maze.getPlayer();
-
-            {
-                setBackground(Color.WHITE);
-            }
-
             @Override
             protected void paintComponent(Graphics graphics) {
+
                 super.paintComponent(graphics);
+
+                Box[] graph = maze.getGraph();
+                Player player = maze.getPlayer();
 
 
                 // Zeichne Taschenlampe falls getLightBulb = TRUE
@@ -73,9 +67,8 @@ public class GUI {
                 }
 
 
-
                 // zeichne die Wände der Boxen:
-                for (Box box : this.graph) {
+                for (Box box : graph) {
                     int xpos = box.getXPos();
                     int ypos = box.getYPos();
 
@@ -132,14 +125,14 @@ public class GUI {
 
         // Lege präferierte Größe der Zeichenebene fest:
         canvas.setPreferredSize(new Dimension(maze.getColumnNum() * DEFAULT_COLUMN_WIDTH + 2 * DEFAULT_PADDING, maze.getRowNum() * DEFAULT_ROW_HEIGHT + 2 * DEFAULT_PADDING));
+        // Setze Hintergrundfarbe auf Weiß:
+        canvas.setBackground(Color.WHITE);
         // Füge die Zeichenebene in das Fenster ein:
         mainFrame.getContentPane().add(canvas);
 
 
         // Erstelle KeyListener für die Tasten WASD
         KeyListener WASDListener = new KeyListener() {
-            private final Player player = maze.getPlayer();
-
             private boolean WPressed = false;
             private boolean APressed = false;
             private boolean SPressed = false;
@@ -147,11 +140,11 @@ public class GUI {
 
             private final Timer t = new Timer(
                 20,
-                (e) -> {
-                    if (this.WPressed) maze.movePlayer(0., -DEFAULT_MOVEMENT_SPEED); // player.setYPos(player.getYPos() - 0.05);
-                    if (this.APressed) maze.movePlayer(-DEFAULT_MOVEMENT_SPEED, 0.); // player.setXPos(player.getXPos() - 0.05);
-                    if (this.SPressed) maze.movePlayer(0., DEFAULT_MOVEMENT_SPEED); // player.setYPos(player.getYPos() + 0.05);
-                    if (this.DPressed) maze.movePlayer(DEFAULT_MOVEMENT_SPEED, 0.); // player.setXPos(player.getXPos() + 0.05);
+                (_) -> {
+                    if (this.WPressed) maze.movePlayer(0., -DEFAULT_MOVEMENT_SPEED);
+                    if (this.APressed) maze.movePlayer(-DEFAULT_MOVEMENT_SPEED, 0.);
+                    if (this.SPressed) maze.movePlayer(0., DEFAULT_MOVEMENT_SPEED);
+                    if (this.DPressed) maze.movePlayer(DEFAULT_MOVEMENT_SPEED, 0.);
                     mainFrame.repaint();
                 }
             );
@@ -199,6 +192,14 @@ public class GUI {
         ResetButton.setPreferredSize(ButtonDimension);
         ResetButton.setBackground(Color.WHITE);
         ResetButton.setText("Reset Maze");
+        ActionListener ResetListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                maze.reset();
+                mainFrame.requestFocus();
+            }
+        };
+        ResetButton.addActionListener(ResetListener);
         ButtonPanel.add(ResetButton);
 
 
@@ -240,7 +241,7 @@ public class GUI {
 
     // Main Methode:
     public static void main(String[] args) {
-        GUI.setFlashLightOn(2.0);
+        // GUI.setFlashLightOn(2.0);
         Maze maze = new Maze(20, 20);
         runMaze(maze);
     }

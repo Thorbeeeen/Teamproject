@@ -7,16 +7,16 @@ public class Maze {
 
     private final int columnNum;
     private final int rowNum;
-    private final Player player;
 
-    private final Box[] graph;
+    private Player player;
+    private Box[] graph;
     private int[][] indexes;
 
     public Maze(int columnNum, int rowNum) {
         this.columnNum = columnNum;
         this.rowNum = rowNum;
-        this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
 
+        this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
         this.graph = createMaze(columnNum, rowNum);
         this.indexes = createIndexes();
     }
@@ -37,50 +37,6 @@ public class Maze {
         return rowNum;
     }
 
-    public void movePlayer(double deltax, double deltay) {
-        double leftx = this.player.getXPos();
-        double rightx = this.player.getXPos() + player.getWidth();
-        double uppery = this.player.getYPos();
-        double bottomy = this.player.getYPos() + player.getHeight();
-
-        Box upperleftBox = getBoxAtPosition((int) leftx, (int) uppery);
-        Box upperrightBox = getBoxAtPosition((int) rightx, (int) uppery);
-        Box bottomleftBox = getBoxAtPosition((int) leftx, (int) bottomy);
-        Box bottomrightBox = getBoxAtPosition((int) rightx, (int) bottomy);
-
-        if (deltax > 0) {
-            if ((int) rightx == (int) (rightx + deltax)) {
-                player.setXPos(player.getXPos() + deltax);
-            }
-            else if (upperrightBox == bottomrightBox && upperrightBox.connects(getBoxAtPosition((int) (rightx + deltax), (int) uppery))) {
-                player.setXPos(player.getXPos() + deltax);
-            }
-        } else if (deltax < 0) {
-            if ((int) leftx == Math.floor(leftx + deltax)) {
-                player.setXPos(player.getXPos() + deltax);
-            }
-            else if (upperleftBox == bottomleftBox && upperleftBox.connects(getBoxAtPosition((int) (leftx + deltax), (int) uppery))) {
-                player.setXPos(player.getXPos() + deltax);
-            }
-        }
-        if (deltay > 0) {
-            if ((int) bottomy == (int) (bottomy + deltay)) {
-                player.setYPos(player.getYPos() + deltay);
-            }
-            else if (bottomrightBox == bottomleftBox && bottomleftBox.connects(getBoxAtPosition((int) leftx, (int) (bottomy + deltay)))) {
-                player.setYPos(player.getYPos() + deltay);
-            }
-        } else if (deltay < 0) {
-            if ((int) uppery == Math.floor(uppery + deltay)) {
-                player.setYPos(player.getYPos() + deltay);
-            }
-            else if (upperrightBox == upperleftBox && upperleftBox.connects(getBoxAtPosition((int) leftx, (int) (uppery + deltay)))) {
-                player.setYPos(player.getYPos() + deltay);
-            }
-        }
-    }
-
-
     public Box getBoxAtPosition(int xpos, int ypos) {
         if (0 <= xpos && xpos < columnNum && 0 <= ypos && ypos < rowNum) return this.graph[indexes[xpos][ypos]];
         else return null;
@@ -93,9 +49,57 @@ public class Maze {
         return null;
     }
 
+    public void movePlayer(double deltaX, double deltaY) {
+        double leftx = this.player.getXPos();
+        double rightx = this.player.getXPos() + player.getWidth();
+        double uppery = this.player.getYPos();
+        double bottomy = this.player.getYPos() + player.getHeight();
+
+        Box upperleftBox = getBoxAtPosition((int) leftx, (int) uppery);
+        Box upperrightBox = getBoxAtPosition((int) rightx, (int) uppery);
+        Box bottomleftBox = getBoxAtPosition((int) leftx, (int) bottomy);
+        Box bottomrightBox = getBoxAtPosition((int) rightx, (int) bottomy);
+
+        if (deltaX > 0) {
+            if ((int) rightx == (int) (rightx + deltaX)) {
+                player.setXPos(player.getXPos() + deltaX);
+            }
+            else if (upperrightBox == bottomrightBox && upperrightBox.connects(getBoxAtPosition((int) (rightx + deltaX), (int) uppery))) {
+                player.setXPos(player.getXPos() + deltaX);
+            }
+        } else if (deltaX < 0) {
+            if ((int) leftx == Math.floor(leftx + deltaX)) {
+                player.setXPos(player.getXPos() + deltaX);
+            }
+            else if (upperleftBox == bottomleftBox && upperleftBox.connects(getBoxAtPosition((int) (leftx + deltaX), (int) uppery))) {
+                player.setXPos(player.getXPos() + deltaX);
+            }
+        }
+        if (deltaY > 0) {
+            if ((int) bottomy == (int) (bottomy + deltaY)) {
+                player.setYPos(player.getYPos() + deltaY);
+            }
+            else if (bottomrightBox == bottomleftBox && bottomleftBox.connects(getBoxAtPosition((int) leftx, (int) (bottomy + deltaY)))) {
+                player.setYPos(player.getYPos() + deltaY);
+            }
+        } else if (deltaY < 0) {
+            if ((int) uppery == Math.floor(uppery + deltaY)) {
+                player.setYPos(player.getYPos() + deltaY);
+            }
+            else if (upperrightBox == upperleftBox && upperleftBox.connects(getBoxAtPosition((int) leftx, (int) (uppery + deltaY)))) {
+                player.setYPos(player.getYPos() + deltaY);
+            }
+        }
+    }
+
+    public void reset() {
+        this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
+        this.graph = createMaze(columnNum, rowNum);
+        this.indexes = createIndexes();
+    }
 
     /**
-    * Hilfsmethode, die ein zufälliges Labyrinth erzeugt der lösbar ist.
+    * Hilfsmethode, die ein zufälliges Labyrinth erzeugt, das lösbar ist.
     */
     private Box[] createMaze(int columnNum, int rowNum) {
         Box[] graph = new Box[columnNum * rowNum];
