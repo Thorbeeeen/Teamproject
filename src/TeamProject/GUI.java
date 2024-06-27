@@ -12,9 +12,15 @@ public class GUI {
     private static final int DEFAULT_PADDING = 20;
     private static final int DEFAULT_COLUMN_WIDTH = 30;
     private static final int DEFAULT_ROW_HEIGHT = 30;
+    private static final int DEFAULT_BUTTON_WIDTH = 200;
+    private static final int DEFAULT_BUTTON_HEIGHT = 50;
 
-    private static double VISIBLE_RADIUS = 1.5; // sichtbarer Radius der Taschenlampe
+    private static final double DEFAULT_MOVEMENT_SPEED = 0.05;
+
+    private static double VISIBLE_RADIUS = 40; // sichtbarer Radius der Taschenlampe
     private static boolean IS_FLASHLIGHT_ON = false; // Boolean der speichert ob Taschenlampenmodus ein oder aus ist
+
+    private static final Dimension ButtonDimension = new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT);
 
 
     // Hauptmethode:
@@ -30,11 +36,17 @@ public class GUI {
 
         // Erstelle zusätzliche Ebene, um die Boxen zu zeichnen:
         JPanel canvas = new JPanel() {
+
             private final Box[] graph = maze.getGraph();;
             private final Player player = maze.getPlayer();
 
+            {
+                setBackground(Color.WHITE);
+            }
+
             @Override
             protected void paintComponent(Graphics graphics) {
+                super.paintComponent(graphics);
 
 
                 // Zeichne Taschenlampe falls getLightBulb = TRUE
@@ -108,10 +120,10 @@ public class GUI {
                 // zeichne Player:
                 graphics.setColor(player.getColor());
                 graphics.fillOval(
-                        (int) (player.getXPos() * DEFAULT_COLUMN_WIDTH - 0.5 * player.getWidth()) + DEFAULT_PADDING,
-                        (int) (player.getYPos() * DEFAULT_ROW_HEIGHT - 0.5 * player.getWidth()) + DEFAULT_PADDING,
-                        player.getWidth(),
-                        player.getHeight());
+                        (int) (player.getXPos() * DEFAULT_COLUMN_WIDTH) + DEFAULT_PADDING,
+                        (int) (player.getYPos() * DEFAULT_ROW_HEIGHT) + DEFAULT_PADDING,
+                        (int) (player.getWidth() * DEFAULT_COLUMN_WIDTH),
+                        (int) (player.getHeight() * DEFAULT_ROW_HEIGHT));
 
 
             }
@@ -136,10 +148,10 @@ public class GUI {
             private final Timer t = new Timer(
                 20,
                 (e) -> {
-                    if (this.WPressed) player.setYPos(player.getYPos() - 0.05);
-                    if (this.APressed) player.setXPos(player.getXPos() - 0.05);
-                    if (this.SPressed) player.setYPos(player.getYPos() + 0.05);
-                    if (this.DPressed) player.setXPos(player.getXPos() + 0.05);
+                    if (this.WPressed) maze.movePlayer(0., -DEFAULT_MOVEMENT_SPEED); // player.setYPos(player.getYPos() - 0.05);
+                    if (this.APressed) maze.movePlayer(-DEFAULT_MOVEMENT_SPEED, 0.); // player.setXPos(player.getXPos() - 0.05);
+                    if (this.SPressed) maze.movePlayer(0., DEFAULT_MOVEMENT_SPEED); // player.setYPos(player.getYPos() + 0.05);
+                    if (this.DPressed) maze.movePlayer(DEFAULT_MOVEMENT_SPEED, 0.); // player.setXPos(player.getXPos() + 0.05);
                     mainFrame.repaint();
                 }
             );
@@ -174,18 +186,18 @@ public class GUI {
         mainFrame.addKeyListener(WASDListener);
 
 
-        // Erstelle Panel um die Boxen darin zu platzieren
+        // Erstelle Panel, um die Boxen darin zu platzieren
         JPanel ButtonPanel = new JPanel();
         ButtonPanel.setLayout(new FlowLayout());
-        ButtonPanel.setBackground(new Color(255, 255, 255));
+        ButtonPanel.setBackground(Color.WHITE);
         mainFrame.getContentPane().add(ButtonPanel, BorderLayout.SOUTH);
 
 
         // Erstelle, Platziere Knopf zum Neuerstellung des Labyrinths und füge Funktionalität hinzu:
         JButton ResetButton = new JButton();
         ResetButton.setVisible(true);
-        ResetButton.setPreferredSize(new Dimension(200, 50));
-        ResetButton.setBackground(new Color(255, 255, 255));
+        ResetButton.setPreferredSize(ButtonDimension);
+        ResetButton.setBackground(Color.WHITE);
         ResetButton.setText("Reset Maze");
         ButtonPanel.add(ResetButton);
 
@@ -193,17 +205,17 @@ public class GUI {
         // Erstelle, Platziere Knopf zum Einstellen der Schwierigkeit des Labyrinths und füge Funktionalität hinzu:
         JButton DifficultyButton = new JButton();
         DifficultyButton.setVisible(true);
-        DifficultyButton.setPreferredSize(new Dimension(200, 50));
-        DifficultyButton.setBackground(new Color(255, 255, 255));
+        DifficultyButton.setPreferredSize(ButtonDimension);
+        DifficultyButton.setBackground(Color.WHITE);
         DifficultyButton.setText("Difficulty:");
         ButtonPanel.add(DifficultyButton);
 
 
-        // Erstelle, Platziere Knopf zum Einstellen der Schwierigkeit des Labyrinths und füge Funktionalität hinzu:
+        // Erstelle Button für noch unbekannten Grund:
         JButton Button3 = new JButton();
         Button3.setVisible(true);
-        Button3.setPreferredSize(new Dimension(200, 50));
-        Button3.setBackground(new Color(255, 255, 255));
+        Button3.setPreferredSize(ButtonDimension);
+        Button3.setBackground(Color.WHITE);
         Button3.setText("TBD");
         ButtonPanel.add(Button3);
 
@@ -217,18 +229,18 @@ public class GUI {
     // Weitere Hilfsmethoden:
 
     // Taschenlampenfunktion Getter/Setter
-    private boolean getFlashlightOn(){return IS_FLASHLIGHT_ON;}
-    private static void setFlashLightOn(double radius){
+    private boolean getFlashlightOn() {return IS_FLASHLIGHT_ON;}
+    private static void setFlashLightOn(double radius) {
         VISIBLE_RADIUS = radius;
-        IS_FLASHLIGHT_ON = true;
+         IS_FLASHLIGHT_ON = true;
     }
-    private static void setFlashLightOff(){IS_FLASHLIGHT_ON = false;}
+     private static void setFlashLightOff() {IS_FLASHLIGHT_ON = false;}
 
 
 
     // Main Methode:
     public static void main(String[] args) {
-        GUI.setFlashLightOn(1.0);
+        GUI.setFlashLightOn(2.0);
         Maze maze = new Maze(20, 20);
         runMaze(maze);
     }

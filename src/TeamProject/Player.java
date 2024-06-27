@@ -7,17 +7,17 @@ public class Player {
     private double xpos;
     private double ypos;
 
-    private int width;
-    private int height;
+    private double width;
+    private double height;
 
     private Color color;
 
-    public Player(int width, int height) {
+    public Player(double width, double height) {
         this.xpos = 0.5;
         this.ypos = 0.5;
         this.width =  width;
         this.height = height;
-        this.color = new Color(0, 0, 0);
+        this.color = Color.BLACK;
     }
 
     public double getXPos() {
@@ -36,7 +36,7 @@ public class Player {
         this.ypos = ypos;
     }
 
-    public int getHeight() {
+    public double getHeight() {
         return height;
     }
 
@@ -44,7 +44,7 @@ public class Player {
         this.height = height;
     }
 
-    public int getWidth() {
+    public double getWidth() {
         return width;
     }
 

@@ -2,21 +2,23 @@ package TeamProject;
 
 public class Maze {
 
-    private final int playerWidth = 8;
-    private final int playerHeight = 8;
+    private static final double DEFAULT_PLAYER_WIDTH = 0.2;
+    private static final double DEFAULT_PLAYER_HEIGHT = 0.2;
 
     private final int columnNum;
     private final int rowNum;
     private final Player player;
 
     private final Box[] graph;
+    private int[][] indexes;
 
     public Maze(int columnNum, int rowNum) {
         this.columnNum = columnNum;
         this.rowNum = rowNum;
-        this.player = new Player(this.playerWidth, this.playerHeight);
+        this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
 
         this.graph = createMaze(columnNum, rowNum);
+        this.indexes = createIndexes();
     }
 
     public Player getPlayer() {
@@ -35,8 +37,53 @@ public class Maze {
         return rowNum;
     }
 
+    public void movePlayer(double deltax, double deltay) {
+        double leftx = this.player.getXPos();
+        double rightx = this.player.getXPos() + player.getWidth();
+        double uppery = this.player.getYPos();
+        double bottomy = this.player.getYPos() + player.getHeight();
+
+        Box upperleftBox = getBoxAtPosition((int) leftx, (int) uppery);
+        Box upperrightBox = getBoxAtPosition((int) rightx, (int) uppery);
+        Box bottomleftBox = getBoxAtPosition((int) leftx, (int) bottomy);
+        Box bottomrightBox = getBoxAtPosition((int) rightx, (int) bottomy);
+
+        if (deltax > 0) {
+            if ((int) rightx == (int) (rightx + deltax)) {
+                player.setXPos(player.getXPos() + deltax);
+            }
+            else if (upperrightBox == bottomrightBox && upperrightBox.connects(getBoxAtPosition((int) (rightx + deltax), (int) uppery))) {
+                player.setXPos(player.getXPos() + deltax);
+            }
+        } else if (deltax < 0) {
+            if ((int) leftx == Math.floor(leftx + deltax)) {
+                player.setXPos(player.getXPos() + deltax);
+            }
+            else if (upperleftBox == bottomleftBox && upperleftBox.connects(getBoxAtPosition((int) (leftx + deltax), (int) uppery))) {
+                player.setXPos(player.getXPos() + deltax);
+            }
+        }
+        if (deltay > 0) {
+            if ((int) bottomy == (int) (bottomy + deltay)) {
+                player.setYPos(player.getYPos() + deltay);
+            }
+            else if (bottomrightBox == bottomleftBox && bottomleftBox.connects(getBoxAtPosition((int) leftx, (int) (bottomy + deltay)))) {
+                player.setYPos(player.getYPos() + deltay);
+            }
+        } else if (deltay < 0) {
+            if ((int) uppery == Math.floor(uppery + deltay)) {
+                player.setYPos(player.getYPos() + deltay);
+            }
+            else if (upperrightBox == upperleftBox && upperleftBox.connects(getBoxAtPosition((int) leftx, (int) (uppery + deltay)))) {
+                player.setYPos(player.getYPos() + deltay);
+            }
+        }
+    }
+
+
     public Box getBoxAtPosition(int xpos, int ypos) {
-        return getBoxAtPosition(this.graph, xpos, ypos);
+        if (0 <= xpos && xpos < columnNum && 0 <= ypos && ypos < rowNum) return this.graph[indexes[xpos][ypos]];
+        else return null;
     }
 
     private Box getBoxAtPosition(Box[] graph, int xpos, int ypos) {
@@ -45,6 +92,7 @@ public class Maze {
         }
         return null;
     }
+
 
     /**
     * Hilfsmethode, die ein zufälliges Labyrinth erzeugt der lösbar ist.
@@ -190,6 +238,21 @@ public class Maze {
             if (bool) {
                 result[pos] = target;
                 pos++;
+            }
+        }
+        return result;
+    }
+
+    private int[][] createIndexes() {
+        int[][] result = new int[this.columnNum][this.rowNum];
+        for (int i = 0; i < result.length; i++) {
+            for (int j = 0; j < result[0].length; j++) {
+                for (int k = 0; k < this.graph.length; k++) {
+                    if (this.graph[k].getXPos() == i && this.graph[k].getYPos() == j) {
+                        result[i][j] = k;
+                        break;
+                    }
+                }
             }
         }
         return result;
