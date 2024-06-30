@@ -107,6 +107,20 @@ public class GUI {
                                 ypos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING,
                                 (xpos + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
                                 ypos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
+
+                    // Zeichne Buchstaben
+                    if(box.getItem() != null) {
+                        Items item = box.getItem();
+                        //graphics.setColor(item.getColor());
+                        Font font = new Font("Arial", Font.BOLD, 15);
+                        graphics.setFont(font);
+                        graphics.drawString(item.getLetter(),
+                                xpos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING + 10,
+                                ypos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING + 20);
+
+                    }
+
+
                 }
 
 
@@ -117,6 +131,8 @@ public class GUI {
                         (int) (player.getYPos() * DEFAULT_ROW_HEIGHT) + DEFAULT_PADDING,
                         (int) (player.getWidth() * DEFAULT_COLUMN_WIDTH),
                         (int) (player.getHeight() * DEFAULT_ROW_HEIGHT));
+
+
 
 
             }

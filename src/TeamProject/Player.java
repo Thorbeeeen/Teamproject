@@ -44,9 +44,7 @@ public class Player {
         this.height = height;
     }
 
-    public double getWidth() {
-        return width;
-    }
+    public double getWidth() {return width;}
 
     public void setWidth(int width) {
         this.width = width;
@@ -59,4 +57,19 @@ public class Player {
     public void setColor(Color color) {
         this.color = color;
     }
+
+    public boolean touchesItem(Items item){
+        double left_X = this.getXPos();
+        double right_X = this.getXPos() + this.getWidth();
+        double top_Y = this.getYPos();
+        double bottom_Y = this.getYPos() + this.getHeight();
+
+        double itemLeft_X = item.getXPos();
+        double itemRight_X = item.getXPos() + 1; // Assuming each item occupies one cell
+        double itemTop_Y = item.getYPos();
+        double itemBottom_Y = item.getYPos() + 1;
+
+        return left_X < itemRight_X && right_X > itemLeft_X && top_Y < itemBottom_Y && bottom_Y  > itemTop_Y;
+    }
+
 }

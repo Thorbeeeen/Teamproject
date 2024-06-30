@@ -1,5 +1,7 @@
 package TeamProject;
 
+import java.util.Random;
+
 public class Maze {
 
     private static final double DEFAULT_PLAYER_WIDTH = 0.2;
@@ -12,6 +14,13 @@ public class Maze {
     private Box[] graph;
     private int[][] indexes;
 
+    private Items item;
+    private int collectedLetters = 0;
+    Random random = new Random();
+
+    private int Difficulty = 1;
+
+
     public Maze(int columnNum, int rowNum) {
         this.columnNum = columnNum;
         this.rowNum = rowNum;
@@ -19,6 +28,11 @@ public class Maze {
         this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
         this.graph = createMaze(columnNum, rowNum);
         this.indexes = createIndexes();
+
+        this.item = new Items();
+        if(getDifficulty() == 1){addLetters(item.getEasyWord());}
+        if(getDifficulty() == 2){addLetters(item.getHardWord());}
+        else{addLetters(item.getWort());}
     }
 
     public Player getPlayer() {
@@ -37,6 +51,9 @@ public class Maze {
         return rowNum;
     }
 
+    public int getDifficulty() {return Difficulty;}
+    public void setDifficulty(int difficulty) {Difficulty = difficulty;}
+
     public Box getBoxAtPosition(int xpos, int ypos) {
         if (0 <= xpos && xpos < columnNum && 0 <= ypos && ypos < rowNum) return this.graph[indexes[xpos][ypos]];
         else return null;
@@ -47,6 +64,19 @@ public class Maze {
             if (box.getXPos() == xpos && box.getYPos() == ypos) return box;
         }
         return null;
+    }
+
+    private void addLetters(String word){
+        Random random = new Random();
+        for (int i = 0; i < word.length(); i++) {
+            int xpos;
+            int ypos;
+            do {
+                xpos = random.nextInt(columnNum);
+                ypos = random.nextInt(rowNum);
+            } while (getBoxAtPosition(xpos, ypos) == null || getBoxAtPosition(xpos, ypos).getItem() != null);
+            getBoxAtPosition(xpos, ypos).setItem(new Items(word.substring(i, i+1), xpos, ypos));
+        }
     }
 
     public void movePlayer(double deltaX, double deltaY) {
@@ -90,12 +120,30 @@ public class Maze {
                 player.setYPos(player.getYPos() + deltaY);
             }
         }
+
+        // Falls wir auf einem Item sind, sammeln wir es
+        for(Box box : graph){
+            Items item = box.getItem();
+            if(item != null && player.touchesItem(item)){
+                box.setItem(null);
+                collectedLetters++;
+            }
+        }
+
+
+
+
     }
 
     public void reset() {
         this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
         this.graph = createMaze(columnNum, rowNum);
         this.indexes = createIndexes();
+
+        this.item = new Items();
+        if(getDifficulty() == 1){addLetters(item.getEasyWord());}
+        if(getDifficulty() == 2){addLetters(item.getHardWord());}
+        else{addLetters(item.getWort());}
     }
 
     /**
