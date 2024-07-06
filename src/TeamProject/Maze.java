@@ -16,6 +16,8 @@ public class Maze {
 
     private Items item;
     private int collectedLetters = 0;
+
+    public static String word;
     Random random = new Random();
 
     private int Difficulty = 1;
@@ -30,9 +32,10 @@ public class Maze {
         this.indexes = createIndexes();
 
         this.item = new Items();
-        if(getDifficulty() == 1){addLetters(item.getEasyWord());}
-        if(getDifficulty() == 2){addLetters(item.getHardWord());}
-        else{addLetters(item.getWort());}
+        if(getDifficulty() == 1){this.word = item.getEasyWord();}
+        if(getDifficulty() == 2){this.word = item.getHardWord();}
+        else{this.word = item.getWort();}
+        addLetters(word);
     }
 
     public Player getPlayer() {
@@ -53,6 +56,10 @@ public class Maze {
 
     public int getDifficulty() {return Difficulty;}
     public void setDifficulty(int difficulty) {Difficulty = difficulty;}
+
+    public static String getWord() {
+        return word;
+    }
 
     public Box getBoxAtPosition(int xpos, int ypos) {
         if (0 <= xpos && xpos < columnNum && 0 <= ypos && ypos < rowNum) return this.graph[indexes[xpos][ypos]];
@@ -141,9 +148,10 @@ public class Maze {
         this.indexes = createIndexes();
 
         this.item = new Items();
-        if(getDifficulty() == 1){addLetters(item.getEasyWord());}
-        if(getDifficulty() == 2){addLetters(item.getHardWord());}
-        else{addLetters(item.getWort());}
+        if(getDifficulty() == 1){this.word = item.getEasyWord();}
+        if(getDifficulty() == 2){this.word = item.getHardWord();}
+        else{this.word = item.getWort();}
+        addLetters(word);
     }
 
     /**

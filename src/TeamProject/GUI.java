@@ -144,7 +144,7 @@ public class GUI {
         // Setze Hintergrundfarbe auf Weiß:
         canvas.setBackground(Color.WHITE);
         // Füge die Zeichenebene in das Fenster ein:
-        mainFrame.getContentPane().add(canvas);
+        mainFrame.getContentPane().add(canvas, BorderLayout.NORTH);
 
 
         // Erstelle KeyListener für die Tasten WASD
@@ -201,6 +201,12 @@ public class GUI {
         ButtonPanel.setBackground(Color.WHITE);
         mainFrame.getContentPane().add(ButtonPanel, BorderLayout.SOUTH);
 
+        // Erstelle Panel, um die Label und Timer darin zu platzieren
+        JPanel LabelPanel = new JPanel();
+        LabelPanel.setLayout(new FlowLayout());
+        LabelPanel.setBackground(Color.WHITE);
+        mainFrame.getContentPane().add(LabelPanel, BorderLayout.CENTER);
+
 
         // Erstelle, Platziere Knopf zum Neuerstellung des Labyrinths und füge Funktionalität hinzu:
         JButton ResetButton = new JButton();
@@ -236,6 +242,15 @@ public class GUI {
         Button3.setText("TBD");
         ButtonPanel.add(Button3);
 
+        // Erstelle Label für die Buchstaben
+        JLabel Label1 = new JLabel();
+        Label1.setVisible(true);
+        Label1.setPreferredSize(ButtonDimension);
+        Label1.setBackground(Color.WHITE);
+        Label1.setText(Maze.getWord());
+        LabelPanel.add(Label1);
+
+
 
         // Anpassen der Größe und Layout des Fensters:
         mainFrame.pack();
@@ -251,13 +266,17 @@ public class GUI {
         VISIBLE_RADIUS = radius;
          IS_FLASHLIGHT_ON = true;
     }
-     private static void setFlashLightOff() {IS_FLASHLIGHT_ON = false;}
-
+    private static void setFlashLightOff() {IS_FLASHLIGHT_ON = false;}
+//    private void setRainbowOn(){
+//        for(int i = 0; i < 100; i++){
+//            canvas.setBackground(Color.WHITE);
+//        }
+//    }
 
 
     // Main Methode:
     public static void main(String[] args) {
-        // GUI.setFlashLightOn(2.0);
+        //GUI.setFlashLightOn(3.0);
         Maze maze = new Maze(20, 20);
         runMaze(maze);
     }
