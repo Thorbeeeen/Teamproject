@@ -8,17 +8,17 @@ import java.awt.geom.Ellipse2D; // für die "Taschenlampenfunktion"
 public class GUI {
 
     private static final int DEFAULT_PADDING = 20;
+    private static final int DEFAULT_BOX_PADDING = 2;
     private static final int DEFAULT_COLUMN_WIDTH = 30;
     private static final int DEFAULT_ROW_HEIGHT = 30;
     private static final int DEFAULT_BUTTON_WIDTH = 200;
     private static final int DEFAULT_BUTTON_HEIGHT = 50;
-
     private static final double DEFAULT_MOVEMENT_SPEED = 0.05;
 
     private static double VISIBLE_RADIUS = 40; // sichtbarer Radius der Taschenlampe
     private static boolean IS_FLASHLIGHT_ON = false; // Boolean der speichert ob Taschenlampenmodus ein oder aus ist
 
-    private static final Dimension ButtonDimension = new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT);
+    private static final Dimension DEFAULT_BUTTON_DIMENSION = new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT);
 
 
     // Hauptmethode:
@@ -72,6 +72,7 @@ public class GUI {
                     int xpos = box.getXPos();
                     int ypos = box.getYPos();
 
+                    graphics.setColor(Color.BLACK);
 
                     // zeichne rechte Wand der Box, falls nötig:
                     if (!box.connects(maze.getBoxAtPosition(xpos + 1, ypos)))
@@ -108,19 +109,26 @@ public class GUI {
                                 (xpos + 1) * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING,
                                 ypos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING);
 
-                    // Zeichne Buchstaben
-                    if(box.getItem() != null) {
+                    // zeichne Buchstaben:
+                    if (box.getItem() != null) {
                         Items item = box.getItem();
-                        //graphics.setColor(item.getColor());
                         Font font = new Font("Arial", Font.BOLD, 15);
                         graphics.setFont(font);
                         graphics.drawString(item.getLetter(),
                                 xpos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING + 10,
                                 ypos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING + 20);
-
                     }
 
-
+                    // zeichne Portal:
+                    if (box.getPortal() != null) {
+                        graphics.setColor(box.getPortalColor());
+                        graphics.fillRect(
+                                xpos * DEFAULT_ROW_HEIGHT + DEFAULT_PADDING + DEFAULT_BOX_PADDING,
+                                ypos * DEFAULT_COLUMN_WIDTH + DEFAULT_PADDING + DEFAULT_BOX_PADDING,
+                                DEFAULT_COLUMN_WIDTH - 2 * DEFAULT_BOX_PADDING,
+                                DEFAULT_ROW_HEIGHT - 2 * DEFAULT_BOX_PADDING
+                        );
+                    }
                 }
 
 
@@ -131,10 +139,6 @@ public class GUI {
                         (int) (player.getYPos() * DEFAULT_ROW_HEIGHT) + DEFAULT_PADDING,
                         (int) (player.getWidth() * DEFAULT_COLUMN_WIDTH),
                         (int) (player.getHeight() * DEFAULT_ROW_HEIGHT));
-
-
-
-
             }
         };
 
@@ -175,6 +179,7 @@ public class GUI {
                 if (e.getKeyChar() == 'a') this.APressed = true;
                 if (e.getKeyChar() == 's') this.SPressed = true;
                 if (e.getKeyChar() == 'd') this.DPressed = true;
+                if (e.getKeyChar() == 'f') maze.teleportPlayer();
             }
 
             @Override
@@ -211,7 +216,7 @@ public class GUI {
         // Erstelle, Platziere Knopf zum Neuerstellung des Labyrinths und füge Funktionalität hinzu:
         JButton ResetButton = new JButton();
         ResetButton.setVisible(true);
-        ResetButton.setPreferredSize(ButtonDimension);
+        ResetButton.setPreferredSize(DEFAULT_BUTTON_DIMENSION);
         ResetButton.setBackground(Color.WHITE);
         ResetButton.setText("Reset Maze");
         ActionListener ResetListener = new ActionListener() {
@@ -228,7 +233,7 @@ public class GUI {
         // Erstelle, Platziere Knopf zum Einstellen der Schwierigkeit des Labyrinths und füge Funktionalität hinzu:
         JButton DifficultyButton = new JButton();
         DifficultyButton.setVisible(true);
-        DifficultyButton.setPreferredSize(ButtonDimension);
+        DifficultyButton.setPreferredSize(DEFAULT_BUTTON_DIMENSION);
         DifficultyButton.setBackground(Color.WHITE);
         DifficultyButton.setText("Difficulty:");
         ButtonPanel.add(DifficultyButton);
@@ -237,7 +242,7 @@ public class GUI {
         // Erstelle Button für noch unbekannten Grund:
         JButton Button3 = new JButton();
         Button3.setVisible(true);
-        Button3.setPreferredSize(ButtonDimension);
+        Button3.setPreferredSize(DEFAULT_BUTTON_DIMENSION);
         Button3.setBackground(Color.WHITE);
         Button3.setText("TBD");
         ButtonPanel.add(Button3);
@@ -245,9 +250,9 @@ public class GUI {
         // Erstelle Label für die Buchstaben
         JLabel Label1 = new JLabel();
         Label1.setVisible(true);
-        Label1.setPreferredSize(ButtonDimension);
+        Label1.setPreferredSize(DEFAULT_BUTTON_DIMENSION);
         Label1.setBackground(Color.WHITE);
-        Label1.setText(Maze.getWord());
+        Label1.setText(maze.getWord());
         LabelPanel.add(Label1);
 
 
@@ -255,7 +260,6 @@ public class GUI {
         // Anpassen der Größe und Layout des Fensters:
         mainFrame.pack();
     }
-
 
 
     // Weitere Hilfsmethoden:

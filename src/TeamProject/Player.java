@@ -12,6 +12,8 @@ public class Player {
 
     private Color color;
 
+
+
     public Player(double width, double height) {
         this.xpos = 0.5;
         this.ypos = 0.5;
@@ -19,6 +21,8 @@ public class Player {
         this.height = height;
         this.color = Color.BLACK;
     }
+
+
 
     public double getXPos() {
         return xpos;
@@ -44,7 +48,9 @@ public class Player {
         this.height = height;
     }
 
-    public double getWidth() {return width;}
+    public double getWidth() {
+        return width;
+    }
 
     public void setWidth(int width) {
         this.width = width;

@@ -1,24 +1,58 @@
 package TeamProject;
 
-import java.awt.*;
 import java.util.Random;
 
+/**
+ * Klasse mit zwei Hauptfunktionen:
+ * Einerseits die zufällige Auswahl eines Wortes mit passender Schwierigkeit
+ * und andererseits die Speicherung eines letters an einer Position.
+ */
 public class Items {
+
+
+    // Arrays mit Wörtern:
+    // 1. Test-Liste:
+    private final String[] DEFAULT_TEST_WORDS = new String[] {
+            "Java", "Info", "Code", "Einstein", "Physik"
+    };
+
+    // 2. Einfache Wörter
+    private final String[] DEFAULT_EASY_WORDS = new String[] {
+            "Algorithmus", "Bit", "Compiler", "Datenbank", "Energie", "Forschung", "Grafikkarte", "Hertz", "Information",
+            "Java", "Konstanten", "Labor", "Mikroprozessor", "Neutron", "Optik", "Programmierer", "Quantenphysik",
+            "Software", "Theorie", "Universität", "Veranstaltung", "Wissenschaft", "Xenon",
+            "Yield", "Zustandsraum", "Elektron", "Frequenz", "Gravitationswellen", "Hardware", "Gauss"
+    };
+
+    // 3. Schwere Wörter:
+    private final String[] DEFAULT_HARD_WORDS = new String[] {
+            "Abstraktionsprinzip", "Binomialverteilung", "Chaosforschung", "Differentialgleichung", "Entropie",
+            "Fermion", "Gravitationskonstante", "Hypertexttransferprotokoll", "Informatiktheorie", "Joule-Thomson-Effekt",
+            "KünstlicheIntelligenz", "Lagrange-Multiplikator", "Multiprocessing", "NeuronalesNetzwerk",
+            "OrthogonaleTransformation", "Parallelverarbeitung", "Quantenelektrodynamik", "Relativitätsprinzip",
+            "Schrödinger-Gleichung", "Turingmaschine", "Wellenfunktion", "Relativitätstheorie",
+            "XOR-Gatter", "Yukawa-Wechselwirkung", "Zustandsautomat", "Elektronenspinresonanz", "Fibonacci-Folge",
+            "Normalverteilung", "Brachthäuser", "Pons-Moll", "Aharonov-Bohm Effekt"
+    };
+
+
+
     private double xpos;
     private double ypos;
     private String letter;  // or path to image?
 
-    // Konstruktoren
+
+
     public Items(String letter, double xpos, double ypos){
        this.letter = letter;
        this.xpos = xpos;
        this.ypos = ypos;
-    } // bin nicht sicher ob wir das brauchen
-
-    public Items(){
     }
 
-    // Getter and Setter
+    public Items() {
+    }
+
+
 
     public String getLetter() {
         return letter;
@@ -40,51 +74,30 @@ public class Items {
         this.ypos = ypos;
     }
 
-    public String[] getWoerter() {return woerter;}
 
-    public String[] getEasyWords() {return easyWords;}
-    public String[] getHardWords() {return hardWords;}
 
-//    public String getWort(String[] array) {
-//        Random random = new Random();
-//        return array[random.nextInt(array.length)];
-//    } // allgemein: funktioniert?
-
-    public String getWort() {
+    /**
+     * Methode, die zufälligen String aus DEFAULT_TEST_WORDS zurückgibt.
+     * Die Methode wurde für Testzwecke implementiert und erfüllt keinen Zweck im Moment.
+     */
+    public String getWord() {
         Random random = new Random();
-        return woerter[random.nextInt(woerter.length)];
+        return DEFAULT_TEST_WORDS[random.nextInt(DEFAULT_TEST_WORDS.length)];
     }
+
+    /**
+     * Methode, die zufälligen String aus DEFAULT_EASY_WORDS zurückgibt
+     */
     public String getEasyWord() {
         Random random = new Random();
-        return easyWords[random.nextInt(easyWords.length)];
+        return DEFAULT_EASY_WORDS[random.nextInt(DEFAULT_EASY_WORDS.length)];
     }
+
+    /**
+     * Methode, die zufälligen String aus DEFAULT_HARD_WORDS zurückgibt
+     */
     public String getHardWord() {
         Random random = new Random();
-        return hardWords[random.nextInt(hardWords.length)];
+        return DEFAULT_HARD_WORDS[random.nextInt(DEFAULT_HARD_WORDS.length)];
     }
-
-    // Arrays mit Wörtern
-
-    public String[] woerter = new String[]{"Java", "Info", "Code", "Einstein", "Physik",};
-    // (Test-Liste)
-
-    public String[] easyWords = new String[] {
-            "Algorithmus", "Bit", "Compiler", "Datenbank", "Energie", "Forschung", "Grafikkarte", "Hertz", "Information",
-            "Java", "Konstanten", "Labor", "Mikroprozessor", "Neutron", "Optik", "Programmierer", "Quantenphysik",
-             "Software", "Theorie", "Universität", "Veranstaltung", "Wissenschaft", "Xenon",
-            "Yield", "Zustandsraum", "Elektron", "Frequenz", "Gravitationswellen", "Hardware", "Gauss"
-    }; // Einfache Woerter
-
-    public String[] hardWords = new String[] {
-            "Abstraktionsprinzip", "Binomialverteilung", "Chaosforschung", "Differentialgleichung", "Entropie",
-            "Fermion", "Gravitationskonstante", "Hypertexttransferprotokoll", "Informatiktheorie", "Joule-Thomson-Effekt",
-            "KünstlicheIntelligenz", "Lagrange-Multiplikator", "Multiprocessing", "NeuronalesNetzwerk",
-            "OrthogonaleTransformation", "Parallelverarbeitung", "Quantenelektrodynamik", "Relativitätsprinzip",
-            "Schrödinger-Gleichung", "Turingmaschine", "Wellenfunktion", "Relativitätstheorie",
-            "XOR-Gatter", "Yukawa-Wechselwirkung", "Zustandsautomat", "Elektronenspinresonanz", "Fibonacci-Folge",
-            "Normalverteilung", "Brachthäuser", "Pons-Moll"
-    }; // Schwere Woerter
-
-
-
 }

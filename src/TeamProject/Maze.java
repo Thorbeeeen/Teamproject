@@ -14,28 +14,45 @@ public class Maze {
     private Box[] graph;
     private int[][] indexes;
 
-    private Items item;
+
     private int collectedLetters = 0;
+    public String word;
 
-    public static String word;
-    Random random = new Random();
 
+    // Bedeutung von Difficulty:
+    //
+    // 1 <---> leichte Wörter
+    // 2 <---> schwere Wörter
+    // 0 <---> ohne Wörter FEHLT NOCH
+    // 3 <---> ohne Wörter mit Portal FEHLT NOCH
+    // 4 <---> ohne Wörter mit Flashlight FEHLT NOCH
+    //
     private int Difficulty = 1;
+
 
 
     public Maze(int columnNum, int rowNum) {
         this.columnNum = columnNum;
         this.rowNum = rowNum;
 
+
+        // Erstelle Labyrinth mit Spieler:
         this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
         this.graph = createMaze(columnNum, rowNum);
         this.indexes = createIndexes();
+        this.graph[30].addPortal(this.graph[165]);
 
-        this.item = new Items();
-        if(getDifficulty() == 1){this.word = item.getEasyWord();}
-        if(getDifficulty() == 2){this.word = item.getHardWord();}
-        else{this.word = item.getWort();}
+
+        // Initialisiere die Buchstaben:
+        Items wordsGenerator = new Items();
+        if(getDifficulty() == 1) this.word = wordsGenerator.getEasyWord();
+        if(getDifficulty() == 2) this.word = wordsGenerator.getHardWord();
+        else this.word = wordsGenerator.getWord();
         addLetters(word);
+    }
+
+    public void setDifficulty(int difficulty) {
+        this.Difficulty = difficulty;
     }
 
     public Player getPlayer() {
@@ -54,11 +71,12 @@ public class Maze {
         return rowNum;
     }
 
-    public int getDifficulty() {return Difficulty;}
-    public void setDifficulty(int difficulty) {Difficulty = difficulty;}
+    public int getDifficulty() {
+        return Difficulty;
+    }
 
-    public static String getWord() {
-        return word;
+    public String getWord() {
+        return this.word;
     }
 
     public Box getBoxAtPosition(int xpos, int ypos) {
@@ -79,18 +97,18 @@ public class Maze {
             int xpos;
             int ypos;
             do {
-                xpos = random.nextInt(columnNum);
-                ypos = random.nextInt(rowNum);
+                xpos = random.nextInt(this.columnNum);
+                ypos = random.nextInt(this.rowNum);
             } while (getBoxAtPosition(xpos, ypos) == null || getBoxAtPosition(xpos, ypos).getItem() != null);
-            getBoxAtPosition(xpos, ypos).setItem(new Items(word.substring(i, i+1), xpos, ypos));
+            getBoxAtPosition(xpos, ypos).setItem(new Items(word.substring(i, i + 1), xpos, ypos));
         }
     }
 
     public void movePlayer(double deltaX, double deltaY) {
         double leftx = this.player.getXPos();
-        double rightx = this.player.getXPos() + player.getWidth();
+        double rightx = this.player.getXPos() + this.player.getWidth();
         double uppery = this.player.getYPos();
-        double bottomy = this.player.getYPos() + player.getHeight();
+        double bottomy = this.player.getYPos() + this.player.getHeight();
 
         Box upperleftBox = getBoxAtPosition((int) leftx, (int) uppery);
         Box upperrightBox = getBoxAtPosition((int) rightx, (int) uppery);
@@ -99,47 +117,55 @@ public class Maze {
 
         if (deltaX > 0) {
             if ((int) rightx == (int) (rightx + deltaX)) {
-                player.setXPos(player.getXPos() + deltaX);
+                this.player.setXPos(this.player.getXPos() + deltaX);
             }
             else if (upperrightBox == bottomrightBox && upperrightBox.connects(getBoxAtPosition((int) (rightx + deltaX), (int) uppery))) {
-                player.setXPos(player.getXPos() + deltaX);
+                this.player.setXPos(this.player.getXPos() + deltaX);
             }
         } else if (deltaX < 0) {
             if ((int) leftx == Math.floor(leftx + deltaX)) {
-                player.setXPos(player.getXPos() + deltaX);
+                this.player.setXPos(this.player.getXPos() + deltaX);
             }
             else if (upperleftBox == bottomleftBox && upperleftBox.connects(getBoxAtPosition((int) (leftx + deltaX), (int) uppery))) {
-                player.setXPos(player.getXPos() + deltaX);
+                this.player.setXPos(this.player.getXPos() + deltaX);
             }
         }
         if (deltaY > 0) {
             if ((int) bottomy == (int) (bottomy + deltaY)) {
-                player.setYPos(player.getYPos() + deltaY);
+                this.player.setYPos(this.player.getYPos() + deltaY);
             }
             else if (bottomrightBox == bottomleftBox && bottomleftBox.connects(getBoxAtPosition((int) leftx, (int) (bottomy + deltaY)))) {
-                player.setYPos(player.getYPos() + deltaY);
+                this.player.setYPos(this.player.getYPos() + deltaY);
             }
         } else if (deltaY < 0) {
             if ((int) uppery == Math.floor(uppery + deltaY)) {
-                player.setYPos(player.getYPos() + deltaY);
+                this.player.setYPos(this.player.getYPos() + deltaY);
             }
             else if (upperrightBox == upperleftBox && upperleftBox.connects(getBoxAtPosition((int) leftx, (int) (uppery + deltaY)))) {
-                player.setYPos(player.getYPos() + deltaY);
+                this.player.setYPos(this.player.getYPos() + deltaY);
             }
         }
 
         // Falls wir auf einem Item sind, sammeln wir es
-        for(Box box : graph){
+        for(Box box : this.graph){
             Items item = box.getItem();
-            if(item != null && player.touchesItem(item)){
+            if(item != null && this.player.touchesItem(item)){
                 box.setItem(null);
-                collectedLetters++;
+                this.collectedLetters++;
             }
         }
+    }
 
-
-
-
+    public void teleportPlayer() {
+        Box currentBox = getBoxAtPosition(
+                (int) (this.player.getXPos() + 0.5 * this.player.getWidth()),
+                (int) (this.player.getYPos() + 0.5 * this.player.getHeight())
+        );
+        Box currentBoxPortal = currentBox.getPortal();
+        if (currentBoxPortal != null) {
+            this.player.setXPos(currentBoxPortal.getXPos() + 0.5);
+            this.player.setYPos(currentBoxPortal.getYPos() + 0.5);
+        }
     }
 
     public void reset() {
@@ -147,10 +173,10 @@ public class Maze {
         this.graph = createMaze(columnNum, rowNum);
         this.indexes = createIndexes();
 
-        this.item = new Items();
-        if(getDifficulty() == 1){this.word = item.getEasyWord();}
-        if(getDifficulty() == 2){this.word = item.getHardWord();}
-        else{this.word = item.getWort();}
+        Items wordGenerator = new Items();
+        if(getDifficulty() == 1) this.word = wordGenerator.getEasyWord();
+        if(getDifficulty() == 2) this.word = wordGenerator.getHardWord();
+        else this.word = wordGenerator.getWord();
         addLetters(word);
     }
 
@@ -303,6 +329,10 @@ public class Maze {
         return result;
     }
 
+    /**
+     * Hilfsmethode, die ein 2D-Int-Array arr erstellt,
+     * sodass arr[i][j] für gültige i, j den Index enthält an dem die Box der i-ten Zeile und j-ten Spalte in this.graph gespeichert wird
+     */
     private int[][] createIndexes() {
         int[][] result = new int[this.columnNum][this.rowNum];
         for (int i = 0; i < result.length; i++) {
@@ -318,6 +348,9 @@ public class Maze {
         return result;
     }
 
+    /**
+     * Main-Methode, die das Labyrinth visualisiert.
+     */
     public static void main(String[] args) {
         GUI.main(new String[0]);
     }
