@@ -1,6 +1,5 @@
 package TeamProject;
 
-import javax.swing.text.BoxView;
 import java.awt.*;
 import java.util.*;
 
@@ -11,8 +10,9 @@ public class Box {
     private final int xpos;
     private final int ypos;
     private final LinkedList<Box> neighbors;
+
     private Box portal;
-    private Color portalColor;
+    private Color color;
     private Items item;
 
     public Box(int xpos, int ypos, LinkedList<Box> neighbors, Box portal) {
@@ -20,7 +20,7 @@ public class Box {
         this.ypos = ypos;
         this.neighbors = neighbors;
         this.portal = portal;
-        this.portalColor = DEFAULT_PORTAL_COLOR;
+        this.color = Color.WHITE;
         this.item = null;
     }
 
@@ -49,22 +49,33 @@ public class Box {
     }
 
     public void setPortal(Box portal) {
-        this.portal = portal;
+        if (this.portal == null) this.portal = portal;
     }
 
-    public Color getPortalColor() {
-        return this.portalColor;
+    public Color getColor() {
+        return this.color;
     }
 
-    public void setPortalColor(Color portalColor) {
-        this.portalColor = portalColor;
+    public void setColor(Color color) {
+        this.color = color;
     }
 
 
 
     public void addPortal(Box portal) {
-        this.portal = portal;
-        portal.setPortal(this);
+        if (portal != this && getPortal() == null && portal.getPortal() == null) {
+            setPortal(portal);
+            setColor(DEFAULT_PORTAL_COLOR);
+            portal.setPortal(this);
+            portal.setColor(DEFAULT_PORTAL_COLOR);
+        }
+    }
+
+    public void delPortal(Box portal) {
+        if (getPortal() != null) {
+            this.portal.setPortal(null);
+            this.setPortal(null);
+        }
     }
 
     public int countNeighbors() {

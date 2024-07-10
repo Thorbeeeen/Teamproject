@@ -19,20 +19,20 @@ public class Items {
     // 2. Einfache Wörter
     private final String[] DEFAULT_EASY_WORDS = new String[] {
             "Algorithmus", "Bit", "Compiler", "Datenbank", "Energie", "Forschung", "Grafikkarte", "Hertz", "Information",
-            "Java", "Konstanten", "Labor", "Mikroprozessor", "Neutron", "Optik", "Programmierer", "Quantenphysik",
+            "Java", "Konstanten", "Labor", "Prozessor", "Neutron", "Optik", "Programmierer", "Quanten",
             "Software", "Theorie", "Universität", "Veranstaltung", "Wissenschaft", "Xenon",
-            "Yield", "Zustandsraum", "Elektron", "Frequenz", "Gravitationswellen", "Hardware", "Gauss"
+            "Yield", "Zustand", "Elektron", "Frequenz", "Gravitation", "Hardware", "Gauss"
     };
 
     // 3. Schwere Wörter:
     private final String[] DEFAULT_HARD_WORDS = new String[] {
             "Abstraktionsprinzip", "Binomialverteilung", "Chaosforschung", "Differentialgleichung", "Entropie",
             "Fermion", "Gravitationskonstante", "Hypertexttransferprotokoll", "Informatiktheorie", "Joule-Thomson-Effekt",
-            "KünstlicheIntelligenz", "Lagrange-Multiplikator", "Multiprocessing", "NeuronalesNetzwerk",
-            "OrthogonaleTransformation", "Parallelverarbeitung", "Quantenelektrodynamik", "Relativitätsprinzip",
+            "Künstliche-Intelligenz", "Lagrange-Multiplikator", "Multiprocessing", "NeuronalesNetzwerk",
+            "Orthogonale-Transformation", "Parallelverarbeitung", "Quantenelektrodynamik", "Relativitätsprinzip",
             "Schrödinger-Gleichung", "Turingmaschine", "Wellenfunktion", "Relativitätstheorie",
-            "XOR-Gatter", "Yukawa-Wechselwirkung", "Zustandsautomat", "Elektronenspinresonanz", "Fibonacci-Folge",
-            "Normalverteilung", "Brachthäuser", "Pons-Moll", "Aharonov-Bohm Effekt"
+            "XOR-Gatter", "Yukawa-Wechselwirkung", "Zustandsautomat", "Fibonacci-Folge",
+            "Normalverteilung", "Aharonov-Bohm Effekt"
     };
 
 

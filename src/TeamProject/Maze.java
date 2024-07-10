@@ -1,11 +1,16 @@
 package TeamProject;
 
+import java.awt.*;
 import java.util.Random;
 
+/**
+ * Hauptklasse, die Zustand das Labyrinth speichert und auf Eingaben der Benutzeroberfläche reagiert.
+ */
 public class Maze {
 
     private static final double DEFAULT_PLAYER_WIDTH = 0.2;
     private static final double DEFAULT_PLAYER_HEIGHT = 0.2;
+    private static final int DIFFICULTY_NUM = 5;
 
     private final int columnNum;
     private final int rowNum;
@@ -14,20 +19,29 @@ public class Maze {
     private Box[] graph;
     private int[][] indexes;
 
-
-    private int collectedLetters = 0;
-    public String word;
-
-
     // Bedeutung von Difficulty:
     //
     // 1 <---> leichte Wörter
     // 2 <---> schwere Wörter
-    // 0 <---> ohne Wörter FEHLT NOCH
-    // 3 <---> ohne Wörter mit Portal FEHLT NOCH
-    // 4 <---> ohne Wörter mit Flashlight FEHLT NOCH
+    // 0 <---> ohne Wörter
+    // 3 <---> ohne Wörter mit Portal
+    // 4 <---> ohne Wörter mit Flashlight
     //
-    private int Difficulty = 1;
+    private int Difficulty = 3;
+
+    private int collectedLetters;
+    private String word;
+
+    private double flashlightRadius;
+
+    // Bedeutung von State:
+    //
+    // 0 <---> Ziel wurde noch nicht erreicht
+    // 1 <---> Ziel wurde schon erreicht
+    //
+    private int State = 0;
+
+
 
 
 
@@ -35,24 +49,8 @@ public class Maze {
         this.columnNum = columnNum;
         this.rowNum = rowNum;
 
-
-        // Erstelle Labyrinth mit Spieler:
-        this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
-        this.graph = createMaze(columnNum, rowNum);
-        this.indexes = createIndexes();
-        this.graph[30].addPortal(this.graph[165]);
-
-
-        // Initialisiere die Buchstaben:
-        Items wordsGenerator = new Items();
-        if(getDifficulty() == 1) this.word = wordsGenerator.getEasyWord();
-        if(getDifficulty() == 2) this.word = wordsGenerator.getHardWord();
-        else this.word = wordsGenerator.getWord();
-        addLetters(word);
-    }
-
-    public void setDifficulty(int difficulty) {
-        this.Difficulty = difficulty;
+        // Erstelle Labyrinth mit Spieler und, falls nötig:
+        reset();
     }
 
     public Player getPlayer() {
@@ -71,8 +69,22 @@ public class Maze {
         return rowNum;
     }
 
-    public int getDifficulty() {
-        return Difficulty;
+    public String getDifficultyAsString() {
+        return switch (this.Difficulty) {
+            case 0 -> "Kurze Wörter";
+            case 1 -> "Lange Wörter";
+            case 2 -> "Normal";
+            case 3 -> "Portal";
+            default -> "Nebel";
+        };
+    }
+
+    public double getFlashlightRadius() {
+        return this.flashlightRadius;
+    }
+
+    public int getState() {
+        return this.State;
     }
 
     public String getWord() {
@@ -91,6 +103,127 @@ public class Maze {
         return null;
     }
 
+
+
+
+
+    public void movePlayer(double deltaX, double deltaY) {
+        double leftX = this.player.getXPos();
+        double rightX = this.player.getXPos() + this.player.getWidth();
+        double upperY = this.player.getYPos();
+        double bottomY = this.player.getYPos() + this.player.getHeight();
+
+        Box upperleftBox = getBoxAtPosition((int) leftX, (int) upperY);
+        Box upperrightBox = getBoxAtPosition((int) rightX, (int) upperY);
+        Box bottomleftBox = getBoxAtPosition((int) leftX, (int) bottomY);
+        Box bottomrightBox = getBoxAtPosition((int) rightX, (int) bottomY);
+
+        if (deltaX > 0) {
+            if ((int) rightX == (int) (rightX + deltaX)) {
+                this.player.setXPos(this.player.getXPos() + deltaX);
+            }
+            else if (upperrightBox == bottomrightBox && upperrightBox.connects(getBoxAtPosition((int) (rightX + deltaX), (int) upperY))) {
+                this.player.setXPos(this.player.getXPos() + deltaX);
+            }
+        } else if (deltaX < 0) {
+            if ((int) leftX == Math.floor(leftX + deltaX)) {
+                this.player.setXPos(this.player.getXPos() + deltaX);
+            }
+            else if (upperleftBox == bottomleftBox && upperleftBox.connects(getBoxAtPosition((int) (leftX + deltaX), (int) upperY))) {
+                this.player.setXPos(this.player.getXPos() + deltaX);
+            }
+        }
+        if (deltaY > 0) {
+            if ((int) bottomY == (int) (bottomY + deltaY)) {
+                this.player.setYPos(this.player.getYPos() + deltaY);
+            }
+            else if (bottomrightBox == bottomleftBox && bottomleftBox.connects(getBoxAtPosition((int) leftX, (int) (bottomY + deltaY)))) {
+                this.player.setYPos(this.player.getYPos() + deltaY);
+            }
+        } else if (deltaY < 0) {
+            if ((int) upperY == Math.floor(upperY + deltaY)) {
+                this.player.setYPos(this.player.getYPos() + deltaY);
+            }
+            else if (upperrightBox == upperleftBox && upperleftBox.connects(getBoxAtPosition((int) leftX, (int) (upperY + deltaY)))) {
+                this.player.setYPos(this.player.getYPos() + deltaY);
+            }
+        }
+
+        // Falls wir auf einem Item sind, sammeln wir es
+        for(Box box : this.graph){
+            Items item = box.getItem();
+            if(item != null && this.player.touchesItem(item)){
+                box.setItem(null);
+                this.collectedLetters++;
+            }
+        }
+        updateState();
+    }
+
+    public void teleportPlayer() {
+        Box currentBox = getBoxAtPosition(
+                (int) (this.player.getXPos() + 0.5 * this.player.getWidth()),
+                (int) (this.player.getYPos() + 0.5 * this.player.getHeight())
+        );
+        Box currentBoxPortal = currentBox.getPortal();
+        if (currentBoxPortal != null) {
+            this.player.setXPos(currentBoxPortal.getXPos() + 0.5);
+            this.player.setYPos(currentBoxPortal.getYPos() + 0.5);
+        }
+        updateState();
+    }
+
+    public void changeDifficulty() {
+        this.Difficulty = (this.Difficulty + 1) % DIFFICULTY_NUM;
+    }
+
+    public void reset() {
+        this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
+        this.graph = createMaze(columnNum, rowNum);
+        this.indexes = createIndexes();
+
+        this.collectedLetters = 0;
+
+        Items wordGenerator = new Items();
+
+        switch (this.Difficulty) {
+            case 0:
+                this.word = wordGenerator.getEasyWord();
+                addLetters(this.word);
+                this.flashlightRadius = -1;
+                break;
+            case 1:
+                this.word = wordGenerator.getHardWord();
+                addLetters(this.word);
+                this.flashlightRadius = -1;
+                break;
+            case 2:
+                this.word = "";
+                this.flashlightRadius = -1;
+                break;
+            case 3:
+                this.word = "";
+                this.flashlightRadius = -1;
+
+                Box firstPortalBox = getBoxAtPosition((int) (this.columnNum * Math.random()), (int) (this.rowNum * Math.random()));
+                Box secondPortalBox = getBoxAtPosition((int) (this.columnNum * Math.random()), (int) (this.rowNum * Math.random()));
+                while (firstPortalBox == secondPortalBox) secondPortalBox = getBoxAtPosition((int) (this.columnNum * Math.random()), (int) (this.rowNum * Math.random()));
+                firstPortalBox.addPortal(secondPortalBox);
+                break;
+            case 4:
+                this.word = "";
+                this.flashlightRadius = 4;
+                break;
+        }
+    }
+
+
+
+
+
+    /**
+     * Hilfsmethode, die die Characters von this.word in den Boxen von this.graph verteilt.
+     */
     private void addLetters(String word){
         Random random = new Random();
         for (int i = 0; i < word.length(); i++) {
@@ -104,80 +237,15 @@ public class Maze {
         }
     }
 
-    public void movePlayer(double deltaX, double deltaY) {
-        double leftx = this.player.getXPos();
-        double rightx = this.player.getXPos() + this.player.getWidth();
-        double uppery = this.player.getYPos();
-        double bottomy = this.player.getYPos() + this.player.getHeight();
-
-        Box upperleftBox = getBoxAtPosition((int) leftx, (int) uppery);
-        Box upperrightBox = getBoxAtPosition((int) rightx, (int) uppery);
-        Box bottomleftBox = getBoxAtPosition((int) leftx, (int) bottomy);
-        Box bottomrightBox = getBoxAtPosition((int) rightx, (int) bottomy);
-
-        if (deltaX > 0) {
-            if ((int) rightx == (int) (rightx + deltaX)) {
-                this.player.setXPos(this.player.getXPos() + deltaX);
-            }
-            else if (upperrightBox == bottomrightBox && upperrightBox.connects(getBoxAtPosition((int) (rightx + deltaX), (int) uppery))) {
-                this.player.setXPos(this.player.getXPos() + deltaX);
-            }
-        } else if (deltaX < 0) {
-            if ((int) leftx == Math.floor(leftx + deltaX)) {
-                this.player.setXPos(this.player.getXPos() + deltaX);
-            }
-            else if (upperleftBox == bottomleftBox && upperleftBox.connects(getBoxAtPosition((int) (leftx + deltaX), (int) uppery))) {
-                this.player.setXPos(this.player.getXPos() + deltaX);
-            }
-        }
-        if (deltaY > 0) {
-            if ((int) bottomy == (int) (bottomy + deltaY)) {
-                this.player.setYPos(this.player.getYPos() + deltaY);
-            }
-            else if (bottomrightBox == bottomleftBox && bottomleftBox.connects(getBoxAtPosition((int) leftx, (int) (bottomy + deltaY)))) {
-                this.player.setYPos(this.player.getYPos() + deltaY);
-            }
-        } else if (deltaY < 0) {
-            if ((int) uppery == Math.floor(uppery + deltaY)) {
-                this.player.setYPos(this.player.getYPos() + deltaY);
-            }
-            else if (upperrightBox == upperleftBox && upperleftBox.connects(getBoxAtPosition((int) leftx, (int) (uppery + deltaY)))) {
-                this.player.setYPos(this.player.getYPos() + deltaY);
-            }
-        }
-
-        // Falls wir auf einem Item sind, sammeln wir es
-        for(Box box : this.graph){
-            Items item = box.getItem();
-            if(item != null && this.player.touchesItem(item)){
-                box.setItem(null);
-                this.collectedLetters++;
-            }
-        }
-    }
-
-    public void teleportPlayer() {
+    /**
+     *  Hilfsmethode, die überprüft ob der Spieler mit dem Durchlaufen des Labyrinths fertig ist
+     */
+    private void updateState() {
         Box currentBox = getBoxAtPosition(
                 (int) (this.player.getXPos() + 0.5 * this.player.getWidth()),
                 (int) (this.player.getYPos() + 0.5 * this.player.getHeight())
         );
-        Box currentBoxPortal = currentBox.getPortal();
-        if (currentBoxPortal != null) {
-            this.player.setXPos(currentBoxPortal.getXPos() + 0.5);
-            this.player.setYPos(currentBoxPortal.getYPos() + 0.5);
-        }
-    }
-
-    public void reset() {
-        this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
-        this.graph = createMaze(columnNum, rowNum);
-        this.indexes = createIndexes();
-
-        Items wordGenerator = new Items();
-        if(getDifficulty() == 1) this.word = wordGenerator.getEasyWord();
-        if(getDifficulty() == 2) this.word = wordGenerator.getHardWord();
-        else this.word = wordGenerator.getWord();
-        addLetters(word);
+        if (currentBox.getXPos() == this.columnNum - 1 && currentBox.getYPos() == this.rowNum - 1 && this.collectedLetters == this.word.length()) this.State = 1;
     }
 
     /**
@@ -188,6 +256,7 @@ public class Maze {
         for (int i = 0; i < columnNum * rowNum; i++) {
             graph[i] = new Box(i % columnNum, i / rowNum);
         }
+        graph[columnNum * rowNum - 1].setColor(Color.RED);
         createPath(graph, graph[0], new Box[] {graph[columnNum * rowNum - 1]});
         Box[] unreachableBoxes = computeUnreachableBoxes(graph);
         while (unreachableBoxes.length != 0) {
