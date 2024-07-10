@@ -39,7 +39,7 @@ public class Items {
 
     private double xpos;
     private double ypos;
-    private String letter;  // or path to image?
+    private String letter;
 
 
 

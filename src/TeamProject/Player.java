@@ -71,7 +71,7 @@ public class Player {
         double bottom_Y = this.getYPos() + this.getHeight();
 
         double itemLeft_X = item.getXPos();
-        double itemRight_X = item.getXPos() + 1; // Assuming each item occupies one cell
+        double itemRight_X = item.getXPos() + 1;
         double itemTop_Y = item.getYPos();
         double itemBottom_Y = item.getYPos() + 1;
 

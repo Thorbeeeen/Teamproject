@@ -21,9 +21,9 @@ public class Maze {
 
     // Bedeutung von Difficulty:
     //
-    // 1 <---> leichte Wörter
-    // 2 <---> schwere Wörter
-    // 0 <---> ohne Wörter
+    // 0 <---> leichte Wörter
+    // 1 <---> schwere Wörter
+    // 2 <---> ohne Wörter
     // 3 <---> ohne Wörter mit Portal
     // 4 <---> ohne Wörter mit Flashlight
     //
@@ -31,13 +31,15 @@ public class Maze {
 
     private int collectedLetters;
     private String word;
+    private String displayedWord = "";
 
     private double flashlightRadius;
 
     // Bedeutung von State:
     //
     // 0 <---> Ziel wurde noch nicht erreicht
-    // 1 <---> Ziel wurde schon erreicht
+    // 1 <---> Ziel wurde schon erreicht (Bei Difficulty = 0, 3, 4)
+    // 2 <---> Wort wurde schon gefunden (Bei Difficulty = 1, 2)
     //
     private int State = 0;
 
@@ -90,6 +92,8 @@ public class Maze {
     public String getWord() {
         return this.word;
     }
+
+    public String getDisplayedWord() {return displayedWord;}
 
     public Box getBoxAtPosition(int xpos, int ypos) {
         if (0 <= xpos && xpos < columnNum && 0 <= ypos && ypos < rowNum) return this.graph[indexes[xpos][ypos]];
@@ -149,15 +153,33 @@ public class Maze {
             }
         }
 
-        // Falls wir auf einem Item sind, sammeln wir es
+        // Falls wir auf einem Buchstaben (Items) sind, sammeln wir es
         for(Box box : this.graph){
             Items item = box.getItem();
             if(item != null && this.player.touchesItem(item)){
+                updateDisplayedWord(item);
                 box.setItem(null);
                 this.collectedLetters++;
             }
         }
         updateState();
+    }
+
+    // wenn wir einen Buchstaben finden, wird er auf dem WordLabel an der richtigen Stelle angezeigt
+    public void updateDisplayedWord(Items letter) {
+        if(letter == null){ return;}
+        char collectedLetter = letter.getLetter().charAt(0);
+        StringBuilder updatedWord = new StringBuilder(displayedWord);
+
+        for (int i = 0; i < word.length(); i++) {
+            char originalChar = word.charAt(i);
+            char displayChar = displayedWord.  charAt(i);
+            if (originalChar == collectedLetter && displayChar == '_') {
+                updatedWord.setCharAt(i, collectedLetter);
+                  }
+        }
+        this.displayedWord = updatedWord.toString();
+
     }
 
     public void teleportPlayer() {
@@ -183,26 +205,29 @@ public class Maze {
         this.indexes = createIndexes();
 
         this.collectedLetters = 0;
-
         Items wordGenerator = new Items();
 
         switch (this.Difficulty) {
             case 0:
                 this.word = wordGenerator.getEasyWord();
                 addLetters(this.word);
+                initializeLabel(this.word);
                 this.flashlightRadius = -1;
                 break;
             case 1:
                 this.word = wordGenerator.getHardWord();
                 addLetters(this.word);
+                initializeLabel(this.word);
                 this.flashlightRadius = -1;
                 break;
             case 2:
                 this.word = "";
+                this.displayedWord = "";
                 this.flashlightRadius = -1;
                 break;
             case 3:
                 this.word = "";
+                this.displayedWord = "";
                 this.flashlightRadius = -1;
 
                 Box firstPortalBox = getBoxAtPosition((int) (this.columnNum * Math.random()), (int) (this.rowNum * Math.random()));
@@ -212,6 +237,7 @@ public class Maze {
                 break;
             case 4:
                 this.word = "";
+                this.displayedWord = "";
                 this.flashlightRadius = 4;
                 break;
         }
@@ -238,6 +264,16 @@ public class Maze {
     }
 
     /**
+     * Hilfsmethode, die zu Beginn eine leere Linie der Länge des Wortes nach anzeigt
+     */
+     public void initializeLabel(String word){
+         this.displayedWord = "";
+        for(int i = 0; i < word.length(); i++){
+            this.displayedWord = displayedWord.concat("_");
+        }
+     }
+
+    /**
      *  Hilfsmethode, die überprüft ob der Spieler mit dem Durchlaufen des Labyrinths fertig ist
      */
     private void updateState() {
@@ -245,7 +281,8 @@ public class Maze {
                 (int) (this.player.getXPos() + 0.5 * this.player.getWidth()),
                 (int) (this.player.getYPos() + 0.5 * this.player.getHeight())
         );
-        if (currentBox.getXPos() == this.columnNum - 1 && currentBox.getYPos() == this.rowNum - 1 && this.collectedLetters == this.word.length()) this.State = 1;
+        if (currentBox.getXPos() == this.columnNum - 1 && currentBox.getYPos() == this.rowNum - 1) this.State = 1;
+        if(this.collectedLetters == this.word.length()) this.State = 2;
     }
 
     /**
@@ -256,7 +293,7 @@ public class Maze {
         for (int i = 0; i < columnNum * rowNum; i++) {
             graph[i] = new Box(i % columnNum, i / rowNum);
         }
-        graph[columnNum * rowNum - 1].setColor(Color.RED);
+        if(Difficulty != 0 && Difficulty != 1){graph[columnNum * rowNum - 1].setColor(Color.RED);}
         createPath(graph, graph[0], new Box[] {graph[columnNum * rowNum - 1]});
         Box[] unreachableBoxes = computeUnreachableBoxes(graph);
         while (unreachableBoxes.length != 0) {

@@ -19,7 +19,6 @@ public class GUI {
     public static void runMaze(Maze maze) {
 
         final int DEFAULT_LABEL_WIDTH = maze.getColumnNum() * DEFAULT_COLUMN_WIDTH;
-//        final Dimension DEFAULT_LABEL_DIMENSION = new Dimension(DEFAULT_LABEL_WIDTH, DEFAULT_CONTAINER_HEIGHT);
         final int DEFAULT_BUTTON_WIDTH = DEFAULT_LABEL_WIDTH / 2;
         final Dimension DEFAULT_BUTTON_DIMENSION = new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_CONTAINER_HEIGHT);
 
@@ -162,8 +161,12 @@ public class GUI {
         JLabel WordLabel = new JLabel();
         WordLabel.setVisible(true);
         WordLabel.setPreferredSize(DEFAULT_BUTTON_DIMENSION);
+        WordLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        //WordLabel.setBorder(new LineBorder(Color.BLACK, 2));
+        WordLabel.setHorizontalAlignment(SwingConstants.CENTER);
         WordLabel.setBackground(Color.WHITE);
-        WordLabel.setText(maze.getWord());
+        WordLabel.setText("Hello");
+        //WordLabel.setText(maze.getDisplayedWord()); // CHANGE: GetWOrd
         LabelPanel.add(WordLabel);
 
         // Erstelle KeyListener für die Tasten WASD
@@ -182,7 +185,8 @@ public class GUI {
                     if (this.SPressed) maze.movePlayer(0., movementMultiplier * DEFAULT_MOVEMENT_SPEED);
                     if (this.DPressed) maze.movePlayer(movementMultiplier * DEFAULT_MOVEMENT_SPEED, 0.);
                     if (maze.getState() == 1) WordLabel.setText("Glückwunsch! Du hast das Ziel erreicht!");
-                    else WordLabel.setText(maze.getWord());
+                    if (maze.getState() == 2) WordLabel.setText("Yeah! du hast " + maze.getWord() + " gefunden");
+                    else WordLabel.setText(maze.getDisplayedWord());
                     mainFrame.repaint();
                 }
             );
@@ -234,6 +238,7 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 maze.reset();
+                //WordLabel.setText(maze.getDisplayedWord());
                 mainFrame.requestFocus();
             }
         };
@@ -251,6 +256,7 @@ public class GUI {
             public void actionPerformed(ActionEvent e) {
                 maze.changeDifficulty();
                 maze.reset();
+                WordLabel.setText(maze.getDisplayedWord());
                 DifficultyButton.setText("Difficulty: " + maze.getDifficultyAsString());
                 mainFrame.requestFocus();
             }
