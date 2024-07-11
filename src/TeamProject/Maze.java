@@ -176,6 +176,7 @@ public class Maze {
             char displayChar = displayedWord.  charAt(i);
             if (originalChar == collectedLetter && displayChar == '_') {
                 updatedWord.setCharAt(i, collectedLetter);
+                break;
                   }
         }
         this.displayedWord = updatedWord.toString();
@@ -203,6 +204,7 @@ public class Maze {
         this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
         this.graph = createMaze(columnNum, rowNum);
         this.indexes = createIndexes();
+        this.State = 0;
 
         this.collectedLetters = 0;
         Items wordGenerator = new Items();
