@@ -283,8 +283,8 @@ public class Maze {
                 (int) (this.player.getXPos() + 0.5 * this.player.getWidth()),
                 (int) (this.player.getYPos() + 0.5 * this.player.getHeight())
         );
-        if (currentBox.getXPos() == this.columnNum - 1 && currentBox.getYPos() == this.rowNum - 1) this.State = 1;
-        if(this.collectedLetters == this.word.length()) this.State = 2;
+        if (currentBox.getXPos() == this.columnNum - 1 && currentBox.getYPos() == this.rowNum - 1 && Difficulty > 2) this.State = 1;
+        if(this.collectedLetters == this.word.length() && Difficulty < 2) this.State = 2;
     }
 
     /**

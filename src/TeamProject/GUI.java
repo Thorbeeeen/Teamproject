@@ -185,7 +185,7 @@ public class GUI {
                     if (this.SPressed) maze.movePlayer(0., movementMultiplier * DEFAULT_MOVEMENT_SPEED);
                     if (this.DPressed) maze.movePlayer(movementMultiplier * DEFAULT_MOVEMENT_SPEED, 0.);
                     if (maze.getState() == 1) WordLabel.setText("Glückwunsch! Du hast das Ziel erreicht!");
-                    if (maze.getState() == 2) WordLabel.setText("Yeah! du hast " + maze.getWord() + " gefunden");
+                    if (maze.getState() == 2) WordLabel.setText("Yeah! du hast \"" + maze.getWord() + "\" gefunden");
                     else WordLabel.setText(maze.getDisplayedWord());
                     mainFrame.repaint();
                 }
