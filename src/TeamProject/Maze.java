@@ -479,3 +479,5 @@ public class Maze {
         GUI.main(new String[0]);
     }
 }
+
+
