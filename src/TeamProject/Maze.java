@@ -10,6 +10,7 @@ public class Maze {
 
     private static final double DEFAULT_PLAYER_WIDTH = 0.2;
     private static final double DEFAULT_PLAYER_HEIGHT = 0.2;
+    private static final int DEFAULT_RECURSION_LIMIT = 1000000;
     private static final int DIFFICULTY_NUM = 5;
 
     private final int columnNum;
@@ -93,10 +94,12 @@ public class Maze {
         return this.word;
     }
 
-    public String getDisplayedWord() {return displayedWord;}
+    public String getDisplayedWord() {
+        return this.displayedWord;
+    }
 
     public Box getBoxAtPosition(int xpos, int ypos) {
-        if (0 <= xpos && xpos < columnNum && 0 <= ypos && ypos < rowNum) return this.graph[indexes[xpos][ypos]];
+        if (0 <= xpos && xpos < this.columnNum && 0 <= ypos && ypos < this.rowNum) return this.graph[this.indexes[xpos][ypos]];
         else return null;
     }
 
@@ -165,21 +168,21 @@ public class Maze {
         updateState();
     }
 
-    // wenn wir einen Buchstaben finden, wird er auf dem WordLabel an der richtigen Stelle angezeigt
+    // Wenn wir einen Buchstaben finden, wird er auf dem WordLabel an der richtigen Stelle angezeigt
     public void updateDisplayedWord(Items letter) {
-        if(letter == null){ return;}
+        if(letter == null) return;
         char collectedLetter = letter.getLetter().charAt(0);
-        StringBuilder updatedWord = new StringBuilder(displayedWord);
+        StringBuilder updatedWord = new StringBuilder(this.displayedWord);
 
-        for (int i = 0; i < word.length(); i++) {
-            char originalChar = word.charAt(i);
-            char displayChar = displayedWord.  charAt(i);
+        for (int i = 0; i < this.word.length(); i++) {
+            char originalChar = this.word.charAt(i);
+            char displayChar = this.displayedWord.charAt(i);
             if (originalChar == collectedLetter && displayChar == '_') {
                 updatedWord.setCharAt(i, collectedLetter);
-                  }
+                break;
+            }
         }
         this.displayedWord = updatedWord.toString();
-
     }
 
     public void teleportPlayer() {
@@ -224,6 +227,7 @@ public class Maze {
                 this.word = "";
                 this.displayedWord = "";
                 this.flashlightRadius = -1;
+                this.graph[this.columnNum * this.rowNum - 1].setColor(Color.RED);
                 break;
             case 3:
                 this.word = "";
@@ -234,11 +238,13 @@ public class Maze {
                 Box secondPortalBox = getBoxAtPosition((int) (this.columnNum * Math.random()), (int) (this.rowNum * Math.random()));
                 while (firstPortalBox == secondPortalBox) secondPortalBox = getBoxAtPosition((int) (this.columnNum * Math.random()), (int) (this.rowNum * Math.random()));
                 firstPortalBox.addPortal(secondPortalBox);
+                this.graph[this.columnNum * this.rowNum - 1].setColor(Color.RED);
                 break;
             case 4:
                 this.word = "";
                 this.displayedWord = "";
                 this.flashlightRadius = 4;
+                this.graph[this.columnNum * this.rowNum - 1].setColor(Color.RED);
                 break;
         }
     }
@@ -277,12 +283,21 @@ public class Maze {
      *  Hilfsmethode, die überprüft ob der Spieler mit dem Durchlaufen des Labyrinths fertig ist
      */
     private void updateState() {
-        Box currentBox = getBoxAtPosition(
-                (int) (this.player.getXPos() + 0.5 * this.player.getWidth()),
-                (int) (this.player.getYPos() + 0.5 * this.player.getHeight())
-        );
-        if (currentBox.getXPos() == this.columnNum - 1 && currentBox.getYPos() == this.rowNum - 1) this.State = 1;
-        if(this.collectedLetters == this.word.length()) this.State = 2;
+        switch (this.Difficulty) {
+            case 0:
+            case 1:
+                if (this.collectedLetters == this.word.length()) this.State = 2;
+            case 2:
+            case 3:
+            case 4:
+                Box currentBox;
+                currentBox = getBoxAtPosition(
+                        (int) (this.player.getXPos() + 0.5 * this.player.getWidth()),
+                        (int) (this.player.getYPos() + 0.5 * this.player.getHeight())
+                );
+                if (currentBox.getXPos() == this.columnNum - 1 && currentBox.getYPos() == this.rowNum - 1) this.State = 1;
+                break;
+        }
     }
 
     /**
@@ -293,12 +308,11 @@ public class Maze {
         for (int i = 0; i < columnNum * rowNum; i++) {
             graph[i] = new Box(i % columnNum, i / rowNum);
         }
-        if(Difficulty != 0 && Difficulty != 1){graph[columnNum * rowNum - 1].setColor(Color.RED);}
-        createPath(graph, graph[0], new Box[] {graph[columnNum * rowNum - 1]});
+        while (createPath(graph, graph[0], new Box[] {graph[columnNum * rowNum - 1]}, 0)[0] == 0);
         Box[] unreachableBoxes = computeUnreachableBoxes(graph);
         while (unreachableBoxes.length != 0) {
             Box startingBox = unreachableBoxes[(int) (unreachableBoxes.length * Math.random())];
-            createPath(graph, startingBox, computeReachableBoxes(graph));
+            while (createPath(graph, startingBox, computeReachableBoxes(graph), 0)[0] == 0);
             unreachableBoxes = computeUnreachableBoxes(graph);
         }
         return graph;
@@ -309,14 +323,15 @@ public class Maze {
     * Das i-te Element aus targets speichert hier das i-te target und wird als ein Array der Länge 2 dargestellt, wobei das erste Element die Spaltennummer minus 1 der Box ist 
     * und das zweite Element die Zeilennummer minus 1 der Box ist.
     */
-    private boolean createPath(Box[] graph, Box start, Box[] targets) {
+    private int[] createPath(Box[] graph, Box start, Box[] targets, int recursionCounter) {
         for (Box target : targets) {
-            if (target == start) return true;
+            if (target == start) return new int[] {1, recursionCounter};
         }
-        if (start.countNeighbors() != 0) return false;
+
+        if (start.countNeighbors() != 0 || recursionCounter > DEFAULT_RECURSION_LIMIT) return new int[] {0, recursionCounter};
 
         for (int direction : shuffle(new int[] {0, 1, 2, 3})) {
-            Box next = null;
+            Box next;
 
             switch (direction) {
                 case 0:
@@ -330,13 +345,13 @@ public class Maze {
                     break;
 
                 case 2:
-                    if(start.getXPos() == 0) continue;
+                    if (start.getXPos() == 0) continue;
                     if (start.getYPos() == this.rowNum - 1 || start.getYPos() == 0) continue;
                     next = getBoxAtPosition(graph, start.getXPos() - 1, start.getYPos());
                     break;
 
-                case 3:
-                    if(start.getYPos() == 0) continue;
+                default:
+                    if (start.getYPos() == 0) continue;
                     if (start.getXPos() == this.columnNum - 1 || start.getXPos() == 0) continue;
                     next = getBoxAtPosition(graph, start.getXPos(), start.getYPos() - 1);
                     break;
@@ -344,12 +359,15 @@ public class Maze {
 
             if (next == null) continue;
             start.addConnection(next);
-            boolean foundPath = createPath(graph, next, targets);
-            if (foundPath) next.addConnection(start);
-            if (foundPath) return true;
-            else start.delConnection(next);
+            int[] foundPath = createPath(graph, next, targets, recursionCounter + 1);
+            if (foundPath[0] == 1) {
+                next.addConnection(start);
+                return foundPath;
+            }
+            start.delConnection(next);
+            recursionCounter = foundPath[1];
         }
-        return false;
+        return new int[] {0, recursionCounter};
     }
 
     /**

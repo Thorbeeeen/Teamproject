@@ -11,7 +11,8 @@ public class GUI {
     private static final int DEFAULT_BOX_PADDING = 2;
     private static final int DEFAULT_COLUMN_WIDTH = 30;
     private static final int DEFAULT_ROW_HEIGHT = 30;
-    private static final int DEFAULT_CONTAINER_HEIGHT = 50;
+    private static final int DEFAULT_BUTTON_HEIGHT = 50;
+    private static final int DEFAULT_LABEL_HEIGHT = 30;
     private static final double DEFAULT_MOVEMENT_SPEED = 0.05;
 
 
@@ -20,7 +21,8 @@ public class GUI {
 
         final int DEFAULT_LABEL_WIDTH = maze.getColumnNum() * DEFAULT_COLUMN_WIDTH;
         final int DEFAULT_BUTTON_WIDTH = DEFAULT_LABEL_WIDTH / 2;
-        final Dimension DEFAULT_BUTTON_DIMENSION = new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_CONTAINER_HEIGHT);
+        final Dimension DEFAULT_LABEL_DIMENSION = new Dimension(DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT);
+        final Dimension DEFAULT_BUTTON_DIMENSION = new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT);
 
         // Erstelle neues Fenster:
         JFrame mainFrame = new JFrame();
@@ -160,9 +162,8 @@ public class GUI {
         // Erstelle Label für die Buchstaben
         JLabel WordLabel = new JLabel();
         WordLabel.setVisible(true);
-        WordLabel.setPreferredSize(DEFAULT_BUTTON_DIMENSION);
+        WordLabel.setPreferredSize(DEFAULT_LABEL_DIMENSION);
         WordLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        //WordLabel.setBorder(new LineBorder(Color.BLACK, 2));
         WordLabel.setHorizontalAlignment(SwingConstants.CENTER);
         WordLabel.setBackground(Color.WHITE);
         WordLabel.setText("Hello");
@@ -185,7 +186,7 @@ public class GUI {
                     if (this.SPressed) maze.movePlayer(0., movementMultiplier * DEFAULT_MOVEMENT_SPEED);
                     if (this.DPressed) maze.movePlayer(movementMultiplier * DEFAULT_MOVEMENT_SPEED, 0.);
                     if (maze.getState() == 1) WordLabel.setText("Glückwunsch! Du hast das Ziel erreicht!");
-                    if (maze.getState() == 2) WordLabel.setText("Yeah! du hast " + maze.getWord() + " gefunden");
+                    if (maze.getState() == 2) WordLabel.setText("Yeah! Du hast " + maze.getWord() + " gefunden!");
                     else WordLabel.setText(maze.getDisplayedWord());
                     mainFrame.repaint();
                 }
@@ -238,7 +239,6 @@ public class GUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 maze.reset();
-                //WordLabel.setText(maze.getDisplayedWord());
                 mainFrame.requestFocus();
             }
         };
@@ -257,7 +257,7 @@ public class GUI {
                 maze.changeDifficulty();
                 maze.reset();
                 WordLabel.setText(maze.getDisplayedWord());
-                DifficultyButton.setText("Difficulty: " + maze.getDifficultyAsString());
+                DifficultyButton.setText("Modus: " + maze.getDifficultyAsString());
                 mainFrame.requestFocus();
             }
         };
