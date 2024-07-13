@@ -24,9 +24,9 @@ Zusätzlich kann mit dem Reset-Knopf das Labyrinth (und das Wort/ die Portale fa
 neu und zufällig erstellt werden.
 
 ### Classes
-####- Box Class:
+#### Box Class:
   
-####- GUI Class
+#### GUI Class
  -> 
 
 #### Maze Class
