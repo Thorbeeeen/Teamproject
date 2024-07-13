@@ -1,5 +1,5 @@
 # InfoProjekt Labyrinth
-### Thorben ______ , Jara Hoffsommer
+#### Thorben ______ , Jara Hoffsommer
 ## Table of Contents
 1. [General-Overview](#general-overview)
 2. [Classes](#classes)
@@ -29,7 +29,7 @@ neu und zufällig erstellt werden.
 ####- GUI Class
  -> 
 
-####- Maze Class
+#### Maze Class
 -> Mit der Move-Playerfunktion wird die Spielfigur mit den Tasten A, W, S, D bewegt. 
    Dabei wird geschaut ob wir uns auf einem Buchstaben befinden, falls ja wird dieser 
    eingesammelt
@@ -37,10 +37,10 @@ neu und zufällig erstellt werden.
 -> Die Methode reset setzt ein neues Labyrinth neu zusammen.
 -> Die Methode addLetters verteilt die Buchstaben zufällig im Labyrinth
 
-####- Player Class
-  -> In dieser Klasse wird die Player-Figur verwaltet. Es wird auch getestet, ob der Player ein Item, also einen Buchstbaen berührt.
+#### Player Class
+-> In dieser Klasse wird die Player-Figur verwaltet. Es wird auch getestet, ob der Player ein Item, also einen Buchstbaen berührt.
 
-####- Items Class
-  -> In dieser Klasse werden die Wörter verwaltet, die für die Schwierigkeitsstufen 0 und 1
-  benötigt werden. Die Wörter werden in zwei verschiedenen Arrays gespeichert, um zwischen Schwereren (Längeren)
-  und Leichteren (Kürzeren) Wörtern zu unterscheiden. 
+#### Items Class
+-> In dieser Klasse werden die Wörter verwaltet, die für die Schwierigkeitsstufen 0 und 1
+benötigt werden. Die Wörter werden in zwei verschiedenen Arrays gespeichert, um zwischen Schwereren (Längeren)
+und Leichteren (Kürzeren) Wörtern zu unterscheiden. 
