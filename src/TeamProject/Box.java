@@ -71,7 +71,7 @@ public class Box {
         }
     }
 
-    public void delPortal(Box portal) {
+    public void delPortal() {
         if (getPortal() != null) {
             this.portal.setPortal(null);
             this.setPortal(null);

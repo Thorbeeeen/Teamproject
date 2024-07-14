@@ -167,7 +167,6 @@ public class GUI {
         WordLabel.setHorizontalAlignment(SwingConstants.CENTER);
         WordLabel.setBackground(Color.WHITE);
         WordLabel.setText("Hello");
-        //WordLabel.setText(maze.getDisplayedWord()); // CHANGE: GetWOrd
         LabelPanel.add(WordLabel);
 
         // Erstelle KeyListener für die Tasten WASD
@@ -185,9 +184,9 @@ public class GUI {
                     if (this.APressed) maze.movePlayer(- movementMultiplier * DEFAULT_MOVEMENT_SPEED, 0.);
                     if (this.SPressed) maze.movePlayer(0., movementMultiplier * DEFAULT_MOVEMENT_SPEED);
                     if (this.DPressed) maze.movePlayer(movementMultiplier * DEFAULT_MOVEMENT_SPEED, 0.);
+                    if (maze.getState() == 0) WordLabel.setText(maze.getDisplayedWord());
                     if (maze.getState() == 1) WordLabel.setText("Glückwunsch! Du hast das Ziel erreicht!");
                     if (maze.getState() == 2) WordLabel.setText("Yeah! Du hast " + maze.getWord() + " gefunden!");
-                    else WordLabel.setText(maze.getDisplayedWord());
                     mainFrame.repaint();
                 }
             );

@@ -56,6 +56,13 @@ public class Maze {
         reset();
     }
 
+
+
+
+
+    /*
+    * Die folgenden Getter-Methoden werden vor allem genutzt, um das Labyrinth durch runMaze grafisch darzustellen (getBoxAtPosition wird auch innerhalb der Maze-Klasse oft benutzt).
+     */
     public Player getPlayer() {
         return this.player;
     }
@@ -113,7 +120,9 @@ public class Maze {
 
 
 
-
+    /*
+    * Die folgenden vier Methoden werden vor allem von runMaze aufgerufen, um auf Eingaben zu reagieren.
+     */
     public void movePlayer(double deltaX, double deltaY) {
         double leftX = this.player.getXPos();
         double rightX = this.player.getXPos() + this.player.getWidth();
@@ -157,32 +166,15 @@ public class Maze {
         }
 
         // Falls wir auf einem Buchstaben (Items) sind, sammeln wir es
-        for(Box box : this.graph){
+        for (Box box : this.graph){
             Items item = box.getItem();
-            if(item != null && this.player.touchesItem(item)){
+            if (item != null && this.player.touchesItem(item)){
                 updateDisplayedWord(item);
                 box.setItem(null);
                 this.collectedLetters++;
             }
         }
         updateState();
-    }
-
-    // Wenn wir einen Buchstaben finden, wird er auf dem WordLabel an der richtigen Stelle angezeigt
-    public void updateDisplayedWord(Items letter) {
-        if(letter == null) return;
-        char collectedLetter = letter.getLetter().charAt(0);
-        StringBuilder updatedWord = new StringBuilder(this.displayedWord);
-
-        for (int i = 0; i < this.word.length(); i++) {
-            char originalChar = this.word.charAt(i);
-            char displayChar = this.displayedWord.charAt(i);
-            if (originalChar == collectedLetter && displayChar == '_') {
-                updatedWord.setCharAt(i, collectedLetter);
-                break;
-            }
-        }
-        this.displayedWord = updatedWord.toString();
     }
 
     public void teleportPlayer() {
@@ -206,7 +198,7 @@ public class Maze {
         this.player = new Player(DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_HEIGHT);
         this.graph = createMaze(columnNum, rowNum);
         this.indexes = createIndexes();
-
+        this.State = 0;
         this.collectedLetters = 0;
         Items wordGenerator = new Items();
 
@@ -252,6 +244,24 @@ public class Maze {
 
 
 
+    /**
+     * Hilfsmethode, um Buchstaben aufzuheben.
+     */
+    private void updateDisplayedWord(Items letter) {
+        if (letter == null) return;
+        char collectedLetter = letter.getLetter().charAt(0);
+        StringBuilder updatedWord = new StringBuilder(this.displayedWord);
+
+        for (int i = 0; i < this.word.length(); i++) {
+            char originalChar = this.word.charAt(i);
+            char displayChar = this.displayedWord.charAt(i);
+            if (originalChar == collectedLetter && displayChar == '_') {
+                updatedWord.setCharAt(i, collectedLetter);
+                break;
+            }
+        }
+        this.displayedWord = updatedWord.toString();
+    }
 
     /**
      * Hilfsmethode, die die Characters von this.word in den Boxen von this.graph verteilt.
@@ -272,7 +282,7 @@ public class Maze {
     /**
      * Hilfsmethode, die zu Beginn eine leere Linie der Länge des Wortes nach anzeigt
      */
-     public void initializeLabel(String word){
+    private void initializeLabel(String word){
          this.displayedWord = "";
         for(int i = 0; i < word.length(); i++){
             this.displayedWord = displayedWord.concat("_");
@@ -287,6 +297,7 @@ public class Maze {
             case 0:
             case 1:
                 if (this.collectedLetters == this.word.length()) this.State = 2;
+                break;
             case 2:
             case 3:
             case 4:
@@ -308,11 +319,17 @@ public class Maze {
         for (int i = 0; i < columnNum * rowNum; i++) {
             graph[i] = new Box(i % columnNum, i / rowNum);
         }
-        while (createPath(graph, graph[0], new Box[] {graph[columnNum * rowNum - 1]}, 0)[0] == 0);
+        int foundPath = 0;
+        while (foundPath == 0) {
+            foundPath = createPath(graph, graph[0], new Box[] {graph[columnNum * rowNum - 1]}, 0)[0];
+        }
         Box[] unreachableBoxes = computeUnreachableBoxes(graph);
         while (unreachableBoxes.length != 0) {
             Box startingBox = unreachableBoxes[(int) (unreachableBoxes.length * Math.random())];
-            while (createPath(graph, startingBox, computeReachableBoxes(graph), 0)[0] == 0);
+            foundPath = 0;
+            while (foundPath == 0) {
+                foundPath = createPath(graph, startingBox, computeReachableBoxes(graph), 0)[0];
+            }
             unreachableBoxes = computeUnreachableBoxes(graph);
         }
         return graph;
